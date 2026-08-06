@@ -151,7 +151,7 @@ class DeveloperHubScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<ApiAuthMethod>(
-              value: dev.apiConfig.authMethod,
+              initialValue: dev.apiConfig.authMethod,
               decoration: const InputDecoration(
                 labelText: 'Auth Method',
                 border: OutlineInputBorder(),
@@ -248,7 +248,7 @@ class DeveloperHubScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<ScriptLanguage>(
-                value: lang,
+                initialValue: lang,
                 decoration: const InputDecoration(
                   labelText: 'Language',
                   border: OutlineInputBorder(),

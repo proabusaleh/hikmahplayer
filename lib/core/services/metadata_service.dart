@@ -76,7 +76,7 @@ class MetadataService extends ChangeNotifier {
         queryParameters: {
           'api_key': key,
           'query': query,
-          if (year != null) 'year': year,
+          'year': ?year,
         },
       );
       final results = (response.data['results'] as List<dynamic>? ?? const []);

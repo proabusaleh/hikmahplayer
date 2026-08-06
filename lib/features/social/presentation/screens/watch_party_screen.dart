@@ -447,7 +447,7 @@ class _WatchPartyScreenState extends State<WatchPartyScreen> {
             for (var i = 0; i < optsCtrl.length; i++)
               ValueListenableBuilder<int>(
                 valueListenable: correctIdx,
-                builder: (_, correct, __) => ListTile(
+                builder: (_, correct, _) => ListTile(
                   dense: true,
                   leading: Radio<int>(
                     value: i,
