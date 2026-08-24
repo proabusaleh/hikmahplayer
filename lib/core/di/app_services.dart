@@ -47,7 +47,7 @@ class AppServices {
     ContinuityService? continuity,
     DeveloperService? developer,
   })  : database = database ?? AppDatabase(),
-        playback = playback ?? PlaybackService(),
+        _playbackOverride = playback,
         library = library ?? LibraryService(),
         audio = audio ?? AudioService(),
         ai = ai ?? AIService(),
@@ -97,7 +97,13 @@ class AppServices {
   late final FolderRepository folders;
 
   /// Unified media playback engine (media_kit / libmpv + FFmpeg).
-  final PlaybackService playback;
+  ///
+  /// Created lazily so tests can assemble an [AppServices] around an
+  /// in-memory database without loading media_kit's native engine.
+  late final PlaybackService playback = _playbackOverride ?? PlaybackService();
+
+  /// Injection slot backing [playback]; `null` uses the real engine.
+  final PlaybackService? _playbackOverride;
 
   /// Media library: folder scanning, indexing, tags, collections.
   final LibraryService library;

@@ -20,6 +20,13 @@ class MediaRepository {
     return query.get();
   }
 
+  /// Live stream of every non-hidden item, newest first.
+  Stream<List<MediaItem>> watchAll() =>
+      (_db.select(_db.mediaItems)
+            ..where((t) => t.isHidden.equals(false))
+            ..orderBy([(t) => OrderingTerm.desc(t.dateAdded)]))
+          .watch();
+
   Stream<List<MediaItem>> watchByType(HikmahMediaType type) {
     final query = (_db.select(_db.mediaItems)
           ..where((t) => t.mediaType.equals(type.value))
@@ -85,9 +92,23 @@ class MediaRepository {
       (_db.update(_db.mediaItems)..where((t) => t.id.equals(id)))
           .write(MediaItemsCompanion(isHidden: Value(hidden)));
 
-  Future<void> removeByIds(Iterable<String> ids) =>
-      (_db.delete(_db.mediaItems)..where((t) => t.id.isIn(ids.toList())))
+  /// Removes media rows together with the rows that reference them
+  /// (play history, playlist items). The database runs with
+  /// `PRAGMA foreign_keys = ON`, so children must go first.
+  Future<void> removeByIds(Iterable<String> ids) {
+    final idList = ids.toList();
+    if (idList.isEmpty) return Future.value();
+    return _db.transaction(() async {
+      await (_db.delete(_db.playHistory)
+            ..where((t) => t.mediaId.isIn(idList)))
           .go();
+      await (_db.delete(_db.playlistItems)
+            ..where((t) => t.mediaId.isIn(idList)))
+          .go();
+      await (_db.delete(_db.mediaItems)..where((t) => t.id.isIn(idList)))
+          .go();
+    });
+  }
 
   Future<List<String>> knownPaths() async {
     final rows =

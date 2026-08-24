@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/entities/media_item.dart';
+import '../../core/storage/repositories/media_repository.dart';
+import 'media_provider.dart';
 
+/// Display state of free-text library search.
 class SearchState {
   const SearchState({
     this.query = '',
@@ -28,20 +30,52 @@ class SearchState {
   }
 }
 
+/// Live search over the shared [mediaItemsStreamProvider].
+///
+/// Results update as the user types and whenever the underlying database
+/// changes; [submit] exists for explicit submit affordances (keyboard
+/// "search" action) and simply re-evaluates.
 class SearchController extends Notifier<SearchState> {
+  String _query = '';
+
   @override
-  SearchState build() => const SearchState();
+  SearchState build() => _compute(ref.watch(mediaItemsStreamProvider));
 
   void onQueryChanged(String query) {
-    state = state.copyWith(query: query);
+    _query = query;
+    ref.invalidateSelf();
   }
 
   Future<void> submit() async {
-    throw UnimplementedError();
+    ref.invalidateSelf();
   }
 
   void clear() {
-    state = const SearchState();
+    _query = '';
+    ref.invalidateSelf();
+  }
+
+  SearchState _compute(AsyncValue<List<MediaItem>> snapshot) {
+    final all = snapshot.valueOrNull ?? const <MediaItem>[];
+    final needle = _query.trim().toLowerCase();
+    final results = needle.isEmpty
+        ? const <MediaItem>[]
+        : all.where((row) => _matches(row, needle)).toList(growable: false);
+    return SearchState(
+      query: _query,
+      results: results,
+      isSearching: snapshot.isLoading,
+    );
+  }
+
+  static bool _matches(MediaItem row, String needle) {
+    final haystack = [
+      row.title ?? '',
+      row.fileName,
+      row.artist ?? '',
+      row.album ?? '',
+    ].join(' ').toLowerCase();
+    return haystack.contains(needle);
   }
 }
 
