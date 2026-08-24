@@ -5,8 +5,8 @@ plugins {
 }
 
 android {
-    namespace = "com.hikmahplayer.app"
-    compileSdk = flutter.compileSdkVersion
+    namespace = "com.hikmah.player"
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         // Unique application ID for release.
-        applicationId = "com.hikmahplayer.app"
+        applicationId = "com.hikmah.player"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

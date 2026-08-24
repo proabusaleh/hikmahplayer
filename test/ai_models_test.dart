@@ -15,20 +15,20 @@ import 'package:hikmahplayer/features/ai/domain/models/voice_command.dart';
 
 void main() {
   group('Transcript', () {
-    final word = TranscriptWord(text: 'Hello', start: Duration.zero, end: const Duration(milliseconds: 500), confidence: 0.9);
-    final segment = TranscriptSegment(
+    const word = TranscriptWord(text: 'Hello', start: Duration.zero, end: Duration(milliseconds: 500), confidence: 0.9);
+    const segment = TranscriptSegment(
       start: Duration.zero,
-      end: const Duration(seconds: 2),
+      end: Duration(seconds: 2),
       text: 'Hello world.',
       speakerId: 's1',
       confidence: 0.95,
       words: [word],
     );
-    final transcript = Transcript(
+    const transcript = Transcript(
       mediaId: 'm1',
       language: 'en',
       segments: [segment],
-      speakers: const [Speaker(id: 's1', label: 'Narrator')],
+      speakers: [Speaker(id: 's1', label: 'Narrator')],
     );
 
     test('fullText joins segments', () {
@@ -37,7 +37,7 @@ void main() {
         end: Duration(seconds: 4),
         text: 'Second sentence.',
       );
-      final t = Transcript(mediaId: 'm2', segments: [segment, other]);
+      const t = Transcript(mediaId: 'm2', segments: [segment, other]);
       expect(t.fullText, 'Hello world. Second sentence.');
     });
 

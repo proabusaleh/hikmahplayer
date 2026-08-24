@@ -87,14 +87,14 @@ class SmartRule {
       );
 
   /// A rule like `favorite == true`.
-  factory SmartRule.isFavorite() => SmartRule(
+  factory SmartRule.isFavorite() => const SmartRule(
         field: SmartField.favorite,
         operator: SmartOperator.equals,
         value: true,
       );
 
   /// A rule like `watched == false`.
-  factory SmartRule.unwatched() => SmartRule(
+  factory SmartRule.unwatched() => const SmartRule(
         field: SmartField.watched,
         operator: SmartOperator.equals,
         value: false,

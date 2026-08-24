@@ -3,16 +3,15 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  flutter_secure_storage_linux
+  dynamic_color
+  media_kit_libs_linux
   media_kit_video
-  screen_retriever
-  window_manager
+  sqlite3_flutter_libs
+  volume_controller
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
   jni
-  tflite_flutter
-  whisper_ggml
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

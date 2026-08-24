@@ -362,19 +362,26 @@ class _TrackSection extends StatelessWidget {
             onTap: onDisable,
           )
         else
-          for (final track in tracks)
-            RadioListTile<MediaTrack>(
-              value: track,
-              groupValue: current,
-              title: Text(track.label.isEmpty ? 'Track ${track.id}' : track.label),
-              subtitle: Text([
-                if (track.language != null) track.language!,
-                if (track.codec != null) track.codec!,
-              ].join(' · ')),
-              onChanged: (t) {
-                if (t != null) onSelect(t);
-              },
+          RadioGroup<MediaTrack>(
+            groupValue: current,
+            onChanged: (t) {
+              if (t != null) onSelect(t);
+            },
+            child: Column(
+              children: [
+                for (final track in tracks)
+                  RadioListTile<MediaTrack>(
+                    value: track,
+                    title: Text(
+                        track.label.isEmpty ? 'Track ${track.id}' : track.label),
+                    subtitle: Text([
+                      if (track.language != null) track.language!,
+                      if (track.codec != null) track.codec!,
+                    ].join(' · ')),
+                  ),
+              ],
             ),
+          ),
         if (onDisable != null)
           TextButton(onPressed: onDisable, child: const Text('Disable subtitles')),
       ],

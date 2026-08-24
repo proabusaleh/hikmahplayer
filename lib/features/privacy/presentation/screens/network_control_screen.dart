@@ -44,8 +44,8 @@ class NetworkControlScreen extends StatelessWidget {
                     color: Colors.red.withAlpha(30),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
-                    children: const [
+                  child: const Row(
+                    children: [
                       Icon(Icons.warning_amber, color: Colors.red, size: 20),
                       SizedBox(width: 8),
                       Expanded(

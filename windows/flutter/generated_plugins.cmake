@@ -3,21 +3,17 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  bonsoir_windows
-  connectivity_plus
-  flutter_secure_storage_windows
-  flutter_tts
+  dynamic_color
+  media_kit_libs_windows_video
   media_kit_video
   permission_handler_windows
   screen_brightness_windows
-  screen_retriever
-  window_manager
+  sqlite3_flutter_libs
+  volume_controller
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
   jni
-  tflite_flutter
-  whisper_ggml
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

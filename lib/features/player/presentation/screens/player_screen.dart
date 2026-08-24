@@ -125,7 +125,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               if (item != null)
                 Center(
                   child: item.artworkUri == null
-                      ? Icon(Icons.music_note,
+                      ? const Icon(Icons.music_note,
                           size: 96, color: Colors.white24)
                       : ClipRRect(
                           borderRadius: BorderRadius.circular(20),
@@ -134,7 +134,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                             width: 200,
                             height: 200,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => Icon(Icons.music_note,
+                            errorBuilder: (_, _, _) => const Icon(Icons.music_note,
                                 size: 96, color: Colors.white24),
                           ),
                         ),

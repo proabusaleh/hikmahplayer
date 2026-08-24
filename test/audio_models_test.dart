@@ -47,7 +47,7 @@ void main() {
 
   group('ParametricEq', () {
     test('bands survive JSON round-trip', () {
-      final eq = const ParametricEq(enabled: true, preampDb: -3, bands: [
+      const eq = ParametricEq(enabled: true, preampDb: -3, bands: [
         EqBand(frequencyHz: 60, gainDb: 4, q: 1.2),
         EqBand(frequencyHz: 1000, gainDb: -2),
       ]);
@@ -104,7 +104,7 @@ void main() {
 
   group('RoutingMatrix', () {
     test('setActive toggles exactly one route per app', () {
-      final matrix = const RoutingMatrix(routes: [
+      const matrix = RoutingMatrix(routes: [
         AudioRoute(appName: 'media-player', deviceId: 'spk', deviceType: AudioDeviceType.speaker),
         AudioRoute(appName: 'media-player', deviceId: 'hp', deviceType: AudioDeviceType.headphones),
         AudioRoute(appName: 'notifications', deviceId: 'spk', deviceType: AudioDeviceType.speaker),

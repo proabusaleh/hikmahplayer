@@ -2,18 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../core/themes/app_theme.dart';
+import '../../../../core/di/app_scope.dart';
+import '../../../../core/theme/app_colors.dart';
 
 /// Modern animated splash screen shown on app launch.
 ///
 /// Displays the Hikmah branding with a pulsing glow, animated logo,
 /// and a shimmer loading indicator while the app initializes.
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key, this.onReady});
-
-  /// Called after the minimum splash display time has elapsed.
-  final VoidCallback? onReady;
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -32,7 +31,9 @@ class _SplashScreenState extends State<SplashScreen>
     )..repeat(reverse: true);
 
     Timer(const Duration(milliseconds: 2200), () {
-      if (mounted) widget.onReady?.call();
+      if (!mounted) return;
+      final onboarded = AppScope.of(context).prefs.onboardingCompleted;
+      context.go(onboarded ? '/home/videos' : '/onboarding');
     });
   }
 
@@ -57,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen>
             end: Alignment.bottomCenter,
             colors: [
               Color(0xFF0D0F1A),
-              AppTheme.scaffold,
+              AppColors.surfaceDark,
               Color(0xFF0A0B14),
             ],
           ),
@@ -76,8 +77,8 @@ class _SplashScreenState extends State<SplashScreen>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          AppTheme.seed.withValues(alpha: 0.15 + _glowController.value * 0.1),
-                          AppTheme.seed.withValues(alpha: 0.0),
+                          AppColors.primarySeed.withValues(alpha: 0.15 + _glowController.value * 0.1),
+                          AppColors.primarySeed.withValues(alpha: 0.0),
                         ],
                       ),
                     ),
@@ -101,13 +102,13 @@ class _SplashScreenState extends State<SplashScreen>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppTheme.seed,
-                          AppTheme.seed.withValues(alpha: 0.7),
+                          AppColors.primarySeed,
+                          AppColors.primarySeed.withValues(alpha: 0.7),
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.seed.withValues(alpha: 0.4),
+                          color: AppColors.primarySeed.withValues(alpha: 0.4),
                           blurRadius: 32,
                           spreadRadius: 8,
                         ),
@@ -150,7 +151,7 @@ class _SplashScreenState extends State<SplashScreen>
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w300,
                       letterSpacing: 4.0,
-                      color: AppTheme.seed.withValues(alpha: 0.8),
+                      color: AppColors.primarySeed.withValues(alpha: 0.8),
                     ),
                   )
                       .animate()
@@ -230,7 +231,7 @@ class _LoadingDotsState extends State<_LoadingDots>
               margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.seed.withValues(alpha: scale),
+                color: AppColors.primarySeed.withValues(alpha: scale),
               ),
             );
           }),

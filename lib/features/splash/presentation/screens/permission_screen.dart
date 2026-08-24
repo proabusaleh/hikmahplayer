@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../../../core/themes/app_theme.dart';
+import '../../../../core/theme/app_colors.dart';
 
 /// Modern animated permission request screen.
 ///
@@ -97,7 +97,7 @@ class _PermissionScreenState extends State<PermissionScreen>
             end: Alignment.bottomCenter,
             colors: [
               Color(0xFF0D0F1A),
-              AppTheme.scaffold,
+              AppColors.surfaceDark,
             ],
           ),
         ),
@@ -191,7 +191,7 @@ class _PermissionScreenState extends State<PermissionScreen>
                   child: ElevatedButton(
                     onPressed: _requesting ? null : _requestPermissions,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.seed,
+                      backgroundColor: AppColors.primarySeed,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -259,8 +259,8 @@ class _PermissionIllustration extends StatelessWidget {
             shape: BoxShape.circle,
             gradient: RadialGradient(
               colors: [
-                AppTheme.seed.withValues(alpha: 0.2 + (v * 0.1)),
-                AppTheme.seed.withValues(alpha: 0.0),
+                AppColors.primarySeed.withValues(alpha: 0.2 + (v * 0.1)),
+                AppColors.primarySeed.withValues(alpha: 0.0),
               ],
             ),
           ),
@@ -276,7 +276,7 @@ class _PermissionIllustration extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: AppTheme.seed.withValues(alpha: 0.3),
+                      color: AppColors.primarySeed.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -292,13 +292,13 @@ class _PermissionIllustration extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppTheme.seed,
-                      AppTheme.seed.withValues(alpha: 0.7),
+                      AppColors.primarySeed,
+                      AppColors.primarySeed.withValues(alpha: 0.7),
                     ],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.seed.withValues(alpha: 0.4),
+                      color: AppColors.primarySeed.withValues(alpha: 0.4),
                       blurRadius: 24,
                       spreadRadius: 4,
                     ),

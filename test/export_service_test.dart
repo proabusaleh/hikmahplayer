@@ -230,7 +230,7 @@ void main() {
     });
 
     test('system collections cannot be renamed or deleted', () {
-      final id = ExportService.favouritesCollectionId;
+      const id = ExportService.favouritesCollectionId;
       service.renameCollection(id, 'Nope');
       expect(service.collectionById(id)!.name, 'Favourites');
       service.deleteCollection(id);

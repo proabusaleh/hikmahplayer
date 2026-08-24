@@ -92,10 +92,10 @@ class _MediaGridCell extends StatelessWidget {
                       ),
                     ),
                   if (media.type == MediaType.audio)
-                    Positioned(
+                    const Positioned(
                       left: 6,
                       top: 6,
-                      child: const Icon(Icons.music_note, color: Colors.white70, size: 18),
+                      child: Icon(Icons.music_note, color: Colors.white70, size: 18),
                     ),
                 ],
               ),
