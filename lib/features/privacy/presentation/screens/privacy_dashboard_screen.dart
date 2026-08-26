@@ -243,8 +243,8 @@ class _IncognitoBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.orange.withAlpha(80)),
       ),
-      child: Row(
-        children: const [
+      child: const Row(
+        children: [
           Icon(Icons.theater_comedy, color: Colors.orange, size: 20),
           SizedBox(width: 8),
           Expanded(

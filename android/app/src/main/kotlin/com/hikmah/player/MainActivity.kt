@@ -1,4 +1,4 @@
-package com.hikmahplayer.app
+package com.hikmah.player
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,42 +1,38 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/extensions/media_item_extensions.dart';
-import '../../domain/entities/folder.dart';
-import '../../features/player/domain/models/media_item.dart';
-import 'media_provider.dart';
+import '../../core/storage/repositories/folder_repository.dart';
+import 'services_provider.dart';
 
-final foldersListProvider = Provider<List<Folder>>((ref) {
-  final videos = ref.watch(videosListProvider);
-  final audios = ref.watch(audioListProvider);
-  final allMedia = [...videos, ...audios];
+class FolderList extends AsyncNotifier<List<Folder>> {
+  StreamSubscription<List<Folder>>? _subscription;
+  var _active = true;
 
-  final Map<String, List<MediaItem>> folderMap = {};
-  for (final item in allMedia) {
-    folderMap.putIfAbsent(item.folderPath, () => []).add(item);
+  @override
+  Future<List<Folder>> build() {
+    final completer = Completer<List<Folder>>();
+    final stream = ref.read(appServicesProvider).folders.watchAll();
+    _subscription = stream.listen((folders) {
+      if (!completer.isCompleted) {
+        completer.complete(folders);
+      } else if (_active) {
+        state = AsyncData(folders);
+      }
+    }, onError: (Object error, StackTrace stackTrace) {
+      if (!completer.isCompleted) {
+        completer.completeError(error, stackTrace);
+      }
+    });
+    ref.onDispose(() {
+      _active = false;
+      _subscription?.cancel();
+    });
+    return completer.future;
   }
 
-  final folders = folderMap.entries.map((entry) {
-    final path = entry.key;
-    final name = path.split(RegExp(r'[/\\]')).last;
-    return Folder(
-      id: path.hashCode.toString(),
-      path: path,
-      name: name,
-      mediaCount: entry.value.length,
-      createdAt: DateTime.now(),
-    );
-  }).toList();
+  void refresh() => ref.invalidateSelf();
+}
 
-  folders.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-  return folders;
-});
-
-final folderMediaProvider = Provider.family<List<MediaItem>, String>((ref, folderPath) {
-  final videos = ref.watch(videosListProvider);
-  final audios = ref.watch(audioListProvider);
-  final allMedia = [...videos, ...audios];
-  return allMedia
-      .where((m) => m.folderPath == folderPath)
-      .toList()
-    ..sort((a, b) => a.fileName.compareTo(b.fileName));
-});
+final folderListProvider =
+    AsyncNotifierProvider<FolderList, List<Folder>>(FolderList.new);

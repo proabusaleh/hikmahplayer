@@ -1,154 +1,120 @@
 name: hikmahplayer
 description: "A new Flutter project."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev.
+publish_to: 'none'
+
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.12.2
+  sdk: '>=3.7.0 <4.0.0'
+  flutter: '>=3.29.0'
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
-  # Media Playback
-  media_kit: ^1.1.11               # Primary playback engine (libmpv + FFmpeg)
-  media_kit_video: ^1.2.4          # Video output widget for media_kit
-  video_player: ^2.9.1             # Fallback for simpler platforms
-  just_audio: ^0.9.39              # Audio-only playback
-  audio_service: ^0.18.15          # Background audio with system controls
-  flutter_audio_waveforms: ^1.2.1   # Waveform visualization
+  # ─── NAVIGATION ───
+  go_router: ^14.2.0
 
-  # AI & ML (On-Device)
-  tflite_flutter: ^0.12.1          # TensorFlow Lite for on-device AI
-  google_mlkit_translation: ^0.9.0 # Translation
-  speech_to_text: ^7.4.0           # Speech recognition
+  # ─── MEDIA PLAYBACK ───
+  media_kit: ^1.1.10+1              # Cross-platform media engine (libmpv)
+  media_kit_video: ^1.2.4           # Video rendering widget
+  media_kit_libs_video: ^1.0.4      # Native libs (Android/iOS/Windows)
+  just_audio: ^0.9.39               # Audio-only playback
+  flutter_audio_waveforms: ^1.2.1   # Waveform visualization
+  video_player: ^2.9.1              # Fallback for simpler platforms
+
+  # ─── AUDIO SESSION ───
+  audio_session: ^0.1.21            # Audio focus, interruptions
+  audio_service: ^0.18.15           # Background audio + notifications
+
+  # ─── AI & ML (On-Device) ───
+  tflite_flutter: ^0.11.0           # TensorFlow Lite for on-device AI
+  google_mlkit_translation: ^0.9.0  # Translation
+  speech_to_text: ^6.6.0            # Speech recognition
   whisper_ggml: ^2.4.0              # OpenAI Whisper binding (whisper.cpp)
 
-  # Video Processing
-  ffmpeg_kit_flutter_new_min: ^2.1.0  # FFmpeg for clip creation & conversion
-  screenshot: ^3.0.0               # Frame capture
+  # ─── VIDEO PROCESSING ───
+  ffmpeg_kit_flutter: ^6.0.3        # FFmpeg for clip creation & conversion
+  video_thumbnail: ^0.5.3           # Thumbnail generation
+  screenshot: ^3.0.0                # Frame capture
 
-  # Subtitle Rendering
+  # ─── SUBTITLE RENDERING ───
   subtitle_wrapper_package: ^2.2.1  # Advanced subtitle parsing & rendering
 
-  # State Management
+  # ─── STATE MANAGEMENT ───
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.3.5
   freezed_annotation: ^3.0.0
 
-  # Database & Storage
-  drift: ^2.18.0                   # SQLite for media library
+  # ─── DATABASE ───
+  drift: ^2.18.0                    # SQLite ORM (type-safe)
+  sqlite3_flutter_libs: ^0.5.21     # SQLite native libs
+
+  # ─── LOCAL STORAGE ───
+  shared_preferences: ^2.2.3        # Key-value storage
+  path_provider: ^2.1.4             # App directories
+  path: ^1.9.0                      # Path manipulation
+
+  # ─── PERMISSIONS ───
+  permission_handler: ^11.3.1       # Runtime permissions
+
+  # ─── SHARE / PICK ───
+  share_plus: ^13.0.0               # Share media files
+  file_picker: ^12.0.0              # Pick files to play
+
+  # ─── UI COMPONENTS ───
+  google_fonts: ^6.2.1              # Custom typography
+  flutter_svg: ^2.0.10+1            # SVG rendering
+  lottie: ^3.1.2                    # Lottie animations (onboarding)
+  cached_network_image: ^3.3.1      # Image caching
+  shimmer: ^3.0.0                   # Loading placeholders
+  flutter_staggered_grid_view: ^0.7.0  # Masonry grid (videos)
+  sliver_tools: ^0.2.12             # Advanced slivers
+  animations: ^2.0.11               # Material motion
+  flutter_animate: ^4.5.0           # Animations
+  flutter_slidable: ^3.1.0          # List actions
+  photo_view: ^0.15.0               # Artwork zoom
+
+  # ─── UTILITIES ───
+  intl: ^0.20.2                     # Date/number formatting
+  uuid: ^4.4.0                      # Unique IDs
+  equatable: ^2.0.5                 # Value equality
+  collection: ^1.18.0               # List utilities
+  rxdart: ^0.27.7                   # Reactive streams
+  logger: ^2.3.0                    # Pretty logging
+  crypto: ^3.0.7                    # Content hashing & duplicate detection
+  dio: ^5.4.0                       # HTTP client
+
+  # ─── CODE GENERATION (Annotations) ───
+  json_annotation: ^4.9.0           # JSON serialization
+
+  # ─── PLATFORM SPECIFIC ───
+  wakelock_plus: ^1.2.5             # Keep screen on during playback
+  screen_brightness: ^2.1.11        # Brightness control (gestures)
+  volume_controller: ^3.6.0         # Volume control (gestures)
+  dynamic_color: ^2.1.0             # Material You palettes
   hive_flutter: ^1.1.0              # Fast cache
-  flutter_secure_storage: ^9.2.0   # Encrypted vault
+  flutter_secure_storage: ^11.0.0   # Encrypted vault
 
-  # Utils
-  crypto: ^3.0.7                   # Content hashing & duplicate detection
-  path: ^1.9.0                     # Cross-platform path handling (exports)
-  path_provider: ^2.1.4            # App documents dir for export output
-
-  # UI & UX
-  flutter_animate: ^4.5.0          # Animations
-  shimmer: ^3.0.0                  # Loading states
-  cached_network_image: ^3.3.1     # Artwork caching
-  flutter_slidable: ^3.1.0         # List actions
-  photo_view: ^0.15.0              # Artwork zoom
-  lottie: ^3.1.0                   # Vector animations
-
-  # Connectivity & Streaming
-  dio: ^5.4.0                      # HTTP client
-  web_socket_channel: ^3.0.3       # Real-time sync
-  connectivity_plus: ^6.0.3        # Network state
+  # ─── CONNECTIVITY & STREAMING ───
+  web_socket_channel: ^3.0.0        # Real-time sync
+  connectivity_plus: ^6.0.3         # Network state
   cast: ^2.1.0                      # Chromecast
   flutter_to_airplay: ^2.1.0        # AirPlay
 
-  # Accessibility
-  flutter_tts: ^4.0.0              # Text-to-speech
+  # ─── ACCESSIBILITY ───
+  flutter_tts: ^4.0.0               # Text-to-speech
 
-  # Platform
+  # ─── PLATFORM DESKTOP ───
   pip: ^0.0.4                       # Picture-in-Picture mode
-  screen_brightness: ^0.2.2+1      # Brightness control
-  volume_controller: ^2.0.7        # System volume
-  window_manager: ^0.3.8           # Desktop window
-  file_picker: ^8.0.0              # File selection
-  permission_handler: ^11.3.0      # Permissions
-  go_router: ^13.0.0               # Navigation
-  audio_session: ^0.1.21           # Audio focus & session config
+  window_manager: ^0.3.8            # Desktop window
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of the
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  build_runner: ^2.4.6
-  freezed: ^3.0.6
-  riverpod_generator: ^2.3.9
-  flutter_launcher_icons: ^0.14.3
-  flutter_native_splash: ^2.4.3
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
-
-  # To add assets, place files in the directories under assets/
-  # and uncomment below once files exist:
-  # assets:
-  #   - assets/images/
-  #   - assets/icons/
-  #   - assets/animations/
-
-  # fonts:
-  #   - family: NotoSansArabic
-  #     fonts:
-  #       - asset: assets/fonts/NotoSansArabic-Regular.ttf
-  #       - asset: assets/fonts/NotoSansArabic-Bold.ttf
-  #         weight: 700
-
-# ═══ App Icon Generation ═══
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/icons/app_icon.png"
-  adaptive_icon_foreground: "assets/icons/app_icon_foreground.png"
-  adaptive_icon_background: "#009688"
-  windows:
-    image_path: "assets/icons/app_icon.png"
-    icon_size: 48
-
-# ═══ Splash Screen ═══
-flutter_native_splash:
-  color: "#009688"
-  image: assets/icons/splash_logo.png
-  color_dark: "#121212"
-  image_dark: assets/icons/splash_logo_dark.png
-  android_12:
-    color: "#009688"
-    color_dark: "#121212"
-    icon_background_color: "#009688"
-    icon_background_color_dark: "#1E1E1E"
-  web: false
-  android: true
-  ios: true

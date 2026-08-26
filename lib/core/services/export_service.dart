@@ -64,13 +64,7 @@ class ExportService extends ChangeNotifier {
     ];
   }
 
-  static ExportBackend defaultBackend() {
-    if (kIsWeb) return FFmpegKitExportBackend();
-    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-      return ProcessExportBackend();
-    }
-    return FFmpegKitExportBackend();
-  }
+  static ExportBackend defaultBackend() => ProcessExportBackend();
 
   static Future<String> _defaultOutputDirectory() async {
     try {

@@ -119,7 +119,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     _buildCollections(lib.collections),
                   ],
                   if (_recent.isNotEmpty) ...[
-                    _SectionHeader(title: 'Recently added'),
+                    const _SectionHeader(title: 'Recently added'),
                     _buildRecent(),
                   ],
                   _SectionHeader(

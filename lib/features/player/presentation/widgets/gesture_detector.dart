@@ -31,13 +31,15 @@ class PlayerGestureDetector extends StatelessWidget {
 
   Future<void> _setBrightness(double value) async {
     try {
-      await ScreenBrightness().setScreenBrightness(value.clamp(0.0, 1.0));
+      await ScreenBrightness()
+          .setApplicationScreenBrightness(value.clamp(0.0, 1.0));
     } catch (_) {}
   }
 
   Future<void> _setSystemVolume(double value) async {
     try {
-      VolumeController().setVolume(value.clamp(0.0, 1.0), showSystemUI: false);
+      VolumeController.instance.showSystemUI = false;
+      await VolumeController.instance.setVolume(value.clamp(0.0, 1.0));
     } catch (_) {}
   }
 

@@ -1,8 +1,6 @@
-# ═══════════════════════════════════════════════════════════════
-#  Hikmah Player — ProGuard / R8 rules
-# ═══════════════════════════════════════════════════════════════
+# Keep rules for release builds (R8).
 
-# Flutter
+# Flutter engine & plugin reflection entry points.
 -keep class io.flutter.app.** { *; }
 -keep class io.flutter.plugin.** { *; }
 -keep class io.flutter.util.** { *; }
@@ -10,27 +8,8 @@
 -keep class io.flutter.** { *; }
 -keep class io.flutter.plugins.** { *; }
 
-# Play Core (Flutter deferred components - not used but referenced)
--dontwarn com.google.android.play.core.splitcompat.**
--dontwarn com.google.android.play.core.splitinstall.**
--dontwarn com.google.android.play.core.tasks.**
-
-# media_kit / libmpv
--keep class com.alexmercerind.media_kit.** { *; }
--dontwarn com.alexmercerind.media_kit.**
-
-# Drift / SQLite
--keep class app.cash.sqldelight.** { *; }
--keep class org.sqlite.** { *; }
-
-# Audio Service
+# audio_service: background playback service is looked up reflectively.
 -keep class com.ryanheise.audioservice.** { *; }
 
-# Freezed models
--keep class com.hikmahplayer.app.domain.** { *; }
--keep class com.hikmahplayer.app.data.models.** { *; }
-
-# TensorFlow Lite
--dontwarn org.tensorflow.lite.**
--keep class org.tensorflow.lite.** { *; }
--keep class org.tensorflow.lite.gpu.** { *; }
+# media_kit native event loop.
+-keep class com.alexmercerind.mediakit.** { *; }

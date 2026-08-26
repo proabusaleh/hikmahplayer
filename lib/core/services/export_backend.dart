@@ -1,9 +1,5 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:ffmpeg_kit_flutter_new_min/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter_new_min/return_code.dart';
 
 /// Result of a single ffmpeg run.
 class ExportRunResult {
@@ -34,41 +30,11 @@ abstract class ExportBackend {
   });
 }
 
-/// Runs ffmpeg via the bundled `ffmpeg-kit` library (mobile).
-class FFmpegKitExportBackend implements ExportBackend {
-  @override
-  Future<ExportRunResult> run(
-    List<String> args, {
-    Duration? expectedDuration,
-    void Function(double progress)? onProgress,
-  }) async {
-    final completer = Completer<ExportRunResult>();
-    await FFmpegKit.executeWithArgumentsAsync(
-      ['-hide_banner', '-nostats', ...args],
-      (session) async {
-        final rc = await session.getReturnCode();
-        final success = ReturnCode.isSuccess(rc);
-        completer.complete(ExportRunResult(
-          success: success,
-          exitCode: rc?.getValue() ?? -1,
-        ));
-      },
-      (log) {},
-      (stat) {
-        final expectedMs = expectedDuration?.inMilliseconds ?? 0;
-        if (expectedMs > 0) {
-          // ffmpeg-kit reports processed time in milliseconds.
-          final ratio =
-              (stat.getTime() / expectedMs).clamp(0.0, 1.0);
-          onProgress?.call(ratio);
-        }
-      },
-    );
-    return completer.future;
-  }
-}
-
-/// Runs the system `ffmpeg` binary through `Process.start` (desktop).
+/// Runs the system `ffmpeg` binary through `Process.start`.
+///
+/// This is the only backend: the bundled `ffmpeg-kit` mobile library was
+/// retired upstream and its binaries are no longer distributable, so every
+/// platform shells out to an `ffmpeg` executable found on PATH.
 ///
 /// Progress is parsed from stderr lines of the form
 /// `frame=... time=HH:MM:SS.xx bitrate=...`.

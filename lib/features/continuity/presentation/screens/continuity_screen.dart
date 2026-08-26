@@ -41,10 +41,10 @@ class ContinuityScreen extends StatelessWidget {
                 title: 'Paired Devices',
                 children: [
                   if (continuity.remoteDevices.isEmpty)
-                    ListTile(
-                      leading: const Icon(Icons.devices_other),
-                      title: const Text('No paired devices'),
-                      subtitle: const Text('Discover nearby devices to enable handoff'),
+                    const ListTile(
+                      leading: Icon(Icons.devices_other),
+                      title: Text('No paired devices'),
+                      subtitle: Text('Discover nearby devices to enable handoff'),
                     )
                   else
                     for (final device in continuity.remoteDevices)
@@ -62,7 +62,7 @@ class ContinuityScreen extends StatelessWidget {
                     Card(
                       child: ListTile(
                         leading: const Icon(Icons.sync),
-                        title: Text('Position synced'),
+                        title: const Text('Position synced'),
                         subtitle: Text(
                           'Device: ${synced.deviceId}\n'
                           'Media: ${synced.mediaId}\n'

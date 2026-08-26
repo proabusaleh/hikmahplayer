@@ -292,26 +292,28 @@ class HikmahModeScreen extends StatelessWidget {
     final options = [5, 10, 15, 20, 30];
     showModalBottomSheet(
       context: context,
-      builder: (ctx) => ListView(
-        shrinkWrap: true,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('Reflection Interval', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ),
-          for (final min in options)
-            RadioListTile<int>(
-              title: Text('$min minutes'),
-              value: min,
-              groupValue: hikmah.config.reflectionIntervalMinutes,
-              onChanged: (v) {
-                if (v != null) {
-                  hikmah.setConfig(hikmah.config.copyWith(reflectionIntervalMinutes: v));
-                }
-                Navigator.pop(ctx);
-              },
+      builder: (ctx) => RadioGroup<int>(
+        groupValue: hikmah.config.reflectionIntervalMinutes,
+        onChanged: (v) {
+          if (v != null) {
+            hikmah.setConfig(hikmah.config.copyWith(reflectionIntervalMinutes: v));
+          }
+          Navigator.pop(ctx);
+        },
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text('Reflection Interval', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
-        ],
+            for (final min in options)
+              RadioListTile<int>(
+                title: Text('$min minutes'),
+                value: min,
+              ),
+          ],
+        ),
       ),
     );
   }

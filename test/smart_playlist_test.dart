@@ -131,7 +131,7 @@ void main() {
     });
 
     test('between and comparison operators', () {
-      final between = SmartRule(
+      const between = SmartRule(
         field: SmartField.rating,
         operator: SmartOperator.between,
         value: 8.0,
@@ -140,7 +140,7 @@ void main() {
       expect(SmartPlaylistMatcher.matchesRule(scifiFav, between), isTrue);
       expect(SmartPlaylistMatcher.matchesRule(sadShort, between), isFalse);
 
-      final longerThan = SmartRule(
+      const longerThan = SmartRule(
         field: SmartField.duration,
         operator: SmartOperator.greaterThan,
         value: 60 * 60,
@@ -150,7 +150,7 @@ void main() {
     });
 
     test('empty/notEmpty on unrated items', () {
-      final unrated = SmartRule(
+      const unrated = SmartRule(
         field: SmartField.rating,
         operator: SmartOperator.empty,
       );

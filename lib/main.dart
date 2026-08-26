@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,21 +8,22 @@ import 'package:media_kit/media_kit.dart';
 
 import 'app.dart';
 import 'core/di/app_services.dart';
-import 'core/utils/app_logger.dart';
-import 'presentation/providers/repository_providers.dart';
-import 'services/notification_service.dart';
-import 'services/player_service.dart';
+import 'core/router/app_router.dart';
+import 'core/storage/storage_locations.dart';
+import 'presentation/providers/services_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
   await Hive.initFlutter();
+  await StorageLocations.clearTemp();
 
+  // Phones start portrait; the player screens switch to landscape
+  // (and restore this) via SystemChrome while active.
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -29,25 +32,15 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
-  final box = await Hive.openBox('hikmah_prefs');
-  final isFirstRun = !(box.get('has_launched', defaultValue: false) as bool);
-
-  final services = AppServices();
-
-  // ─── Initialize background audio service ───
-  final playerService = PlayerService();
-  await NotificationService.init(playerService);
-  logInfo('App initialized — background audio ready');
-
+  final services = await AppServices.create();
+  unawaited(services.theme.refreshDynamicSeed());
+  final router = createAppRouter(prefs: services.prefs);
   runApp(
     ProviderScope(
-      overrides: [
-        appServicesProvider.overrideWithValue(services),
-      ],
-      child: HikmahApp(services: services, isFirstRun: isFirstRun),
+      overrides: [appServicesProvider.overrideWithValue(services)],
+      child: HikmahApp(services: services, routerConfig: router),
     ),
   );
 }

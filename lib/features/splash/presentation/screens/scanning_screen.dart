@@ -2,19 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/app_scope.dart';
 import '../../../../core/services/library_service.dart';
-import '../../../../core/themes/app_theme.dart';
+import '../../../../core/theme/app_colors.dart';
 
 /// Modern animated scanning screen that auto-discovers media files.
 ///
 /// Shows real-time progress of folder scanning with animated file
 /// type counters and a shimmering progress bar.
 class ScanningScreen extends StatefulWidget {
-  const ScanningScreen({super.key, this.onScanComplete});
-
-  final VoidCallback? onScanComplete;
+  const ScanningScreen({super.key});
 
   @override
   State<ScanningScreen> createState() => _ScanningScreenState();
@@ -77,8 +76,13 @@ class _ScanningScreenState extends State<ScanningScreen>
 
     // Auto-advance after a brief pause.
     Timer(const Duration(milliseconds: 1500), () {
-      if (mounted) widget.onScanComplete?.call();
+      if (mounted) _finish();
     });
+  }
+
+  void _finish() {
+    AppScope.of(context).prefs.onboardingCompleted = true;
+    context.go('/home/videos');
   }
 
   Future<void> _addDefaultFolders() async {
@@ -128,7 +132,7 @@ class _ScanningScreenState extends State<ScanningScreen>
             end: Alignment.bottomCenter,
             colors: [
               Color(0xFF0D0F1A),
-              AppTheme.scaffold,
+              AppColors.surfaceDark,
             ],
           ),
         ),
@@ -169,7 +173,7 @@ class _ScanningScreenState extends State<ScanningScreen>
                 Text(
                   _currentFolder,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppTheme.seed.withValues(alpha: 0.7),
+                    color: AppColors.primarySeed.withValues(alpha: 0.7),
                     fontFamily: 'monospace',
                   ),
                 ),
@@ -222,7 +226,7 @@ class _ScanningScreenState extends State<ScanningScreen>
                         minHeight: 6,
                         backgroundColor: Colors.white.withValues(alpha: 0.06),
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          _done ? Colors.green : AppTheme.seed,
+                          _done ? Colors.green : AppColors.primarySeed,
                         ),
                       ),
                     ),
@@ -247,9 +251,9 @@ class _ScanningScreenState extends State<ScanningScreen>
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: () => widget.onScanComplete?.call(),
+                      onPressed: _finish,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.seed,
+                        backgroundColor: AppColors.primarySeed,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -272,7 +276,7 @@ class _ScanningScreenState extends State<ScanningScreen>
 
               if (!_done)
                 TextButton(
-                  onPressed: () => widget.onScanComplete?.call(),
+                  onPressed: _finish,
                   child: Text(
                     'Skip for now',
                     style: TextStyle(
@@ -312,9 +316,9 @@ class _ScanningAnimation extends StatelessWidget {
             shape: BoxShape.circle,
             gradient: RadialGradient(
               colors: [
-                (scanning ? AppTheme.seed : Colors.green)
+                (scanning ? AppColors.primarySeed : Colors.green)
                     .withValues(alpha: 0.15 + (v * 0.1)),
-                (scanning ? AppTheme.seed : Colors.green)
+                (scanning ? AppColors.primarySeed : Colors.green)
                     .withValues(alpha: 0.0),
               ],
             ),
@@ -332,7 +336,7 @@ class _ScanningAnimation extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppTheme.seed.withValues(alpha: 0.2),
+                        color: AppColors.primarySeed.withValues(alpha: 0.2),
                         width: 2,
                       ),
                     ),
@@ -350,8 +354,8 @@ class _ScanningAnimation extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppTheme.seed.withValues(alpha: 0.6),
-                            AppTheme.seed.withValues(alpha: 0.0),
+                            AppColors.primarySeed.withValues(alpha: 0.6),
+                            AppColors.primarySeed.withValues(alpha: 0.0),
                           ],
                         ),
                       ),
@@ -368,14 +372,14 @@ class _ScanningAnimation extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      scanning ? AppTheme.seed : Colors.green,
-                      (scanning ? AppTheme.seed : Colors.green)
+                      scanning ? AppColors.primarySeed : Colors.green,
+                      (scanning ? AppColors.primarySeed : Colors.green)
                           .withValues(alpha: 0.7),
                     ],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (scanning ? AppTheme.seed : Colors.green)
+                      color: (scanning ? AppColors.primarySeed : Colors.green)
                           .withValues(alpha: 0.4),
                       blurRadius: 24,
                       spreadRadius: 4,

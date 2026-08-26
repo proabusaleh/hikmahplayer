@@ -97,7 +97,7 @@ class PlaybackService extends ChangeNotifier {
 
   /// Currently selected audio output device.
   final ValueNotifier<mk.AudioDevice> currentAudioDevice =
-      ValueNotifier(mk.AudioDevice('auto', ''));
+      ValueNotifier(const mk.AudioDevice('auto', ''));
 
   /// Available video tracks of the current media.
   final ValueNotifier<List<MediaTrack>> videoTracks = ValueNotifier([]);

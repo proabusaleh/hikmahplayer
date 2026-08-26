@@ -1,9 +1,9 @@
 /// Native DSD sample rates.
 enum DsdRate {
-  dsd64(2_822_400),
-  dsd128(5_644_800),
-  dsd256(11_289_600),
-  dsd512(22_579_200);
+  dsd64(2822400),
+  dsd128(5644800),
+  dsd256(11289600),
+  dsd512(22579200);
 
   const DsdRate(this.sampleRateHz);
 

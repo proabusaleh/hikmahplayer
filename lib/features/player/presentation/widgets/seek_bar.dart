@@ -202,7 +202,7 @@ class _SeekTrackPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.height / 2;
-    final radius = 3.0;
+    const radius = 3.0;
     final track = RRect.fromRectAndRadius(
       Rect.fromLTWH(0, center - radius, size.width, radius * 2),
       const Radius.circular(3.0),

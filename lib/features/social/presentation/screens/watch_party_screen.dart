@@ -213,7 +213,7 @@ class _WatchPartyScreenState extends State<WatchPartyScreen> {
         _buildMemberList(),
         if (_party!.polls.isNotEmpty) ...[
           const SizedBox(height: 16),
-          _SectionHeader(title: 'Active Polls'),
+          const _SectionHeader(title: 'Active Polls'),
           for (final poll in _party!.polls.reversed.take(3))
             _PollCard(poll: poll, selfId: _svc.selfId, onVote: (idx) {
               _svc.votePoll(poll.id, idx);
@@ -221,13 +221,13 @@ class _WatchPartyScreenState extends State<WatchPartyScreen> {
         ],
         if (_party!.quizzes.isNotEmpty) ...[
           const SizedBox(height: 16),
-          _SectionHeader(title: 'Quizzes'),
+          const _SectionHeader(title: 'Quizzes'),
           for (final quiz in _party!.quizzes.reversed.take(3))
             _QuizCard(quiz: quiz),
         ],
         if (_party!.notes.isNotEmpty) ...[
           const SizedBox(height: 16),
-          _SectionHeader(title: 'Shared Notes'),
+          const _SectionHeader(title: 'Shared Notes'),
           for (final note in _party!.notes.reversed.take(10))
             Card(
               child: ListTile(
@@ -241,7 +241,7 @@ class _WatchPartyScreenState extends State<WatchPartyScreen> {
         ],
         if (_party!.reactions.isNotEmpty) ...[
           const SizedBox(height: 16),
-          _SectionHeader(title: 'Recent Reactions'),
+          const _SectionHeader(title: 'Recent Reactions'),
           Wrap(
             spacing: 8,
             runSpacing: 4,
@@ -444,19 +444,25 @@ class _WatchPartyScreenState extends State<WatchPartyScreen> {
             const SizedBox(height: 8),
             TextField(controller: qCtrl, decoration: const InputDecoration(labelText: 'Question')),
             const SizedBox(height: 8),
-            for (var i = 0; i < optsCtrl.length; i++)
-              ValueListenableBuilder<int>(
-                valueListenable: correctIdx,
-                builder: (_, correct, _) => ListTile(
-                  dense: true,
-                  leading: Radio<int>(
-                    value: i,
-                    groupValue: correct,
-                    onChanged: (v) => correctIdx.value = v ?? 0,
-                  ),
-                  title: TextField(controller: optsCtrl[i], decoration: InputDecoration(labelText: 'Option ${i + 1}')),
+            ValueListenableBuilder<int>(
+              valueListenable: correctIdx,
+              builder: (_, correct, _) => RadioGroup<int>(
+                groupValue: correct,
+                onChanged: (v) => correctIdx.value = v ?? 0,
+                child: Column(
+                  children: [
+                    for (var i = 0; i < optsCtrl.length; i++)
+                      ListTile(
+                        dense: true,
+                        leading: Radio<int>(
+                          value: i,
+                        ),
+                        title: TextField(controller: optsCtrl[i], decoration: InputDecoration(labelText: 'Option ${i + 1}')),
+                      ),
+                  ],
                 ),
               ),
+            ),
           ],
         ),
         actions: [
@@ -663,17 +669,25 @@ class _PollCard extends StatelessWidget {
           children: [
             Text(poll.question, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            for (var i = 0; i < poll.options.length; i++)
-              ListTile(
-                dense: true,
-                leading: Radio<int>(
-                  value: i,
-                  groupValue: myVote,
-                  onChanged: poll.closed ? null : (_) => onVote(i),
-                ),
-                title: Text(poll.options[i].label),
-                trailing: Text('${poll.votesFor(i)}'),
+            RadioGroup<int>(
+              groupValue: myVote,
+              onChanged: (v) {
+                if (!poll.closed && v != null) onVote(v);
+              },
+              child: Column(
+                children: [
+                  for (var i = 0; i < poll.options.length; i++)
+                    ListTile(
+                      dense: true,
+                      leading: Radio<int>(
+                        value: i,
+                      ),
+                      title: Text(poll.options[i].label),
+                      trailing: Text('${poll.votesFor(i)}'),
+                    ),
+                ],
               ),
+            ),
             if (poll.closed)
               Text('Poll closed · ${poll.totalVotes} votes',
                   style: Theme.of(context).textTheme.bodySmall),

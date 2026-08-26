@@ -5,9 +5,9 @@ plugins {
 }
 
 android {
-    namespace = "com.hikmahplayer.app"
+    namespace = "com.hikmah.player"
     compileSdk = 36
-    ndkVersion = "29.0.13113456"
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.hikmahplayer.app"
+        applicationId = "com.hikmah.player"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -31,13 +31,13 @@ android {
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("debug") // TODO: use a release key
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
-            signingConfig = signingConfigs.getByName("debug") // TODO: Replace with release signing
         }
     }
 }

@@ -1,17 +1,24 @@
 class FileSizeFormatter {
-  FileSizeFormatter._();
+  const FileSizeFormatter._();
 
-  static String format(int? bytes) {
-    if (bytes == null || bytes < 0) return '\u2014';
-    if (bytes < 1024) return '$bytes B';
-    const units = ['KB', 'MB', 'GB', 'TB', 'PB'];
-    var value = bytes.toDouble();
-    var unit = -1;
-    while (value >= 1024 && unit < units.length - 1) {
-      value /= 1024;
-      unit++;
+  static const double _bytesPerKb = 1024;
+  static const double _bytesPerMb = _bytesPerKb * 1024;
+  static const double _bytesPerGb = _bytesPerMb * 1024;
+
+  static String format(int bytes) {
+    if (bytes < 0) return '';
+    if (bytes < _bytesPerKb) return '$bytes B';
+    if (bytes < _bytesPerMb) {
+      return '${_trim(bytes / _bytesPerKb)} KB';
     }
-    final precision = value >= 100 ? 0 : (value >= 10 ? 1 : 2);
-    return '${value.toStringAsFixed(precision)} ${units[unit]}';
+    if (bytes < _bytesPerGb) {
+      return '${_trim(bytes / _bytesPerMb)} MB';
+    }
+    return '${_trim(bytes / _bytesPerGb)} GB';
+  }
+
+  static String _trim(double value) {
+    final fixed = value.toStringAsFixed(1);
+    return fixed.endsWith('.0') ? fixed.substring(0, fixed.length - 2) : fixed;
   }
 }
