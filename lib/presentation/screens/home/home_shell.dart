@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../features/ai_features/presentation/screens/ai_hub_screen.dart';
-import '../../features/audio/presentation/screens/audio_home_screen.dart';
-import '../../features/creative/presentation/screens/create_hub_screen.dart';
-import '../../features/library/presentation/screens/library_screen.dart';
-import '../../features/player/presentation/widgets/enhanced_mini_player.dart';
-import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../../features/player/presentation/widgets/enhanced_mini_player.dart';
+import '../../../features/settings/presentation/screens/settings_screen.dart';
+import 'folders/folders_screen.dart';
+import 'music/music_screen.dart';
+import 'playlists/playlists_screen.dart';
+import 'videos/videos_screen.dart';
 
-/// Root navigation scaffold: five top-level sections plus the mini player.
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
 
@@ -19,10 +18,10 @@ class _HomeShellState extends State<HomeShell> {
   int _index = 0;
 
   static const _screens = [
-    LibraryScreen(),
-    AudioHomeScreen(),
-    AiHubScreen(),
-    CreateHubScreen(),
+    VideosScreen(),
+    MusicScreen(),
+    FoldersScreen(),
+    PlaylistsScreen(),
     SettingsScreen(),
   ];
 
@@ -39,24 +38,24 @@ class _HomeShellState extends State<HomeShell> {
             onDestinationSelected: (i) => setState(() => _index = i),
             destinations: const [
               NavigationDestination(
-                icon: Icon(Icons.video_library_outlined),
-                selectedIcon: Icon(Icons.video_library),
-                label: 'Library',
+                icon: Icon(Icons.movie_outlined),
+                selectedIcon: Icon(Icons.movie),
+                label: 'Videos',
               ),
               NavigationDestination(
                 icon: Icon(Icons.music_note_outlined),
                 selectedIcon: Icon(Icons.music_note),
-                label: 'Audio',
+                label: 'Music',
               ),
               NavigationDestination(
-                icon: Icon(Icons.auto_awesome_outlined),
-                selectedIcon: Icon(Icons.auto_awesome),
-                label: 'Learn',
+                icon: Icon(Icons.folder_outlined),
+                selectedIcon: Icon(Icons.folder),
+                label: 'Folders',
               ),
               NavigationDestination(
-                icon: Icon(Icons.content_cut_outlined),
-                selectedIcon: Icon(Icons.content_cut),
-                label: 'Create',
+                icon: Icon(Icons.playlist_play_outlined),
+                selectedIcon: Icon(Icons.playlist_play),
+                label: 'Playlists',
               ),
               NavigationDestination(
                 icon: Icon(Icons.settings_outlined),

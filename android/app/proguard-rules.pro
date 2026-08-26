@@ -10,6 +10,11 @@
 -keep class io.flutter.** { *; }
 -keep class io.flutter.plugins.** { *; }
 
+# Play Core (Flutter deferred components - not used but referenced)
+-dontwarn com.google.android.play.core.splitcompat.**
+-dontwarn com.google.android.play.core.splitinstall.**
+-dontwarn com.google.android.play.core.tasks.**
+
 # media_kit / libmpv
 -keep class com.alexmercerind.media_kit.** { *; }
 -dontwarn com.alexmercerind.media_kit.**
@@ -24,3 +29,8 @@
 # Freezed models
 -keep class com.hikmahplayer.app.domain.** { *; }
 -keep class com.hikmahplayer.app.data.models.** { *; }
+
+# TensorFlow Lite
+-dontwarn org.tensorflow.lite.**
+-keep class org.tensorflow.lite.** { *; }
+-keep class org.tensorflow.lite.gpu.** { *; }

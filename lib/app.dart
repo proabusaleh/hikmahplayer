@@ -7,7 +7,7 @@ import 'core/themes/app_theme.dart';
 import 'features/splash/presentation/screens/permission_screen.dart';
 import 'features/splash/presentation/screens/scanning_screen.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
-import 'shared/shell/home_shell.dart';
+import 'presentation/screens/home/home_shell.dart';
 
 /// Onboarding phases.
 enum _Phase { splash, permission, scan, ready }
