@@ -1,33 +1,42 @@
+/// Central registry of every route path in the app.
 abstract final class RouteNames {
-  static const splash = 'splash';
-  static const onboarding = 'onboarding';
-  static const home = 'home';
-  static const videos = 'videos';
-  static const music = 'music';
-  static const folders = 'folders';
-  static const playlists = 'playlists';
-  static const createPlaylist = 'create-playlist';
-  static const settings = 'settings';
-  static const videoPlayer = 'video-player';
-  static const audioPlayer = 'audio-player';
-  static const favorites = 'favorites';
-  static const history = 'history';
-  static const search = 'search';
-}
+  // ─── Top-level ───
+  static const String splash = '/';
+  static const String onboarding = '/onboarding';
+  static const String home = '/home';
 
-abstract final class RoutePaths {
-  static const splash = '/';
-  static const onboarding = '/onboarding';
-  static const home = '/home';
-  static const videos = '/home/videos';
-  static const music = '/home/music';
-  static const folders = '/home/folders';
-  static const playlists = '/home/playlists';
-  static const createPlaylist = '/playlists/create';
-  static const settings = '/home/settings';
-  static const videoPlayer = '/player/video/:id';
-  static const audioPlayer = '/player/audio/:id';
-  static const favorites = '/favorites';
-  static const history = '/history';
-  static const search = '/search';
+  // ─── 3 Main Tabs ───
+  static const String video = '/home/video';
+  static const String music = '/home/music';
+  static const String me = '/home/me';
+
+  // ─── Video Sub-tabs ───
+  static const String videoAll = '/home/video/all';
+  static const String videoFolders = '/home/video/folders';
+  static const String videoPlaylists = '/home/video/playlists';
+
+  // ─── Music Sub-tabs ───
+  static const String musicAll = '/home/music/all';
+  static const String musicPlaylists = '/home/music/playlists';
+  static const String musicFolders = '/home/music/folders';
+  static const String musicAlbums = '/home/music/albums';
+  static const String musicArtists = '/home/music/artists';
+
+  // ─── Overlays ───
+  static const String search = '/search';
+  static const String favorites = '/favorites';
+  static const String history = '/history';
+  static const String settings = '/settings';
+  static const String settingsTheme = '/settings/theme';
+  static const String settingsPlayback = '/settings/playback';
+  static const String settingsStorage = '/settings/storage';
+  static const String settingsAbout = '/settings/about';
+
+  // ─── Players ───
+  static const String videoPlayer = '/video-player/:id';
+  static const String audioPlayer = '/audio-player/:id';
+
+  // ─── Helpers ───
+  static String videoPlayerFor(String id) => '/video-player/$id';
+  static String audioPlayerFor(String id) => '/audio-player/$id';
 }

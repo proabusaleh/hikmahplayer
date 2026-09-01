@@ -9,6 +9,7 @@ import '../services/developer_service.dart';
 import '../services/export_service.dart';
 import '../services/hikmah_service.dart';
 import '../services/library_service.dart';
+import '../services/media_scan_service.dart';
 import '../services/metadata_service.dart';
 import '../services/playback_service.dart';
 import '../services/privacy_service.dart';
@@ -86,6 +87,9 @@ class AppServices {
 
   /// Media items repository (videos & audio).
   late final MediaRepository media;
+
+  /// MediaStore scanner → persisted library importer.
+  late final MediaScanService mediaScan = MediaScanService(media);
 
   /// Playlists repository.
   late final PlaylistRepository playlists;

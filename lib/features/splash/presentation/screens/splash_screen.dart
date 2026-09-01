@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen>
     Timer(const Duration(milliseconds: 2200), () {
       if (!mounted) return;
       final onboarded = AppScope.of(context).prefs.onboardingCompleted;
-      context.go(onboarded ? '/home/videos' : '/onboarding');
+      context.go(onboarded ? '/home/video' : '/onboarding');
     });
   }
 

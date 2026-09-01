@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/di/app_scope.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/media_scanner.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -163,13 +166,29 @@ class _PermissionsPageState extends State<_PermissionsPage> {
 
   Future<void> _request() async {
     setState(() => _requesting = true);
-    await [
-      Permission.videos,
-      Permission.audio,
-      Permission.photos,
+
+    final sdkInt = await MediaScanner.sdkInt();
+    final results = await [
+      if (Platform.isAndroid && sdkInt < 33) Permission.storage,
+      if (Platform.isAndroid && sdkInt >= 33) ...[
+        Permission.videos,
+        Permission.audio,
+        Permission.photos,
+      ],
+      if (!Platform.isAndroid) Permission.storage,
     ].request();
+
+    if (!mounted) return;
     setState(() {
-      _granted = true;
+      if (Platform.isAndroid && sdkInt < 33) {
+        _granted = results[Permission.storage]?.isGranted ?? false;
+      } else if (Platform.isAndroid && sdkInt >= 33) {
+        _granted = (results[Permission.videos]?.isGranted ?? false) &&
+            (results[Permission.audio]?.isGranted ?? false);
+        // Photos are optional for scanning, but we requested them.
+      } else {
+        _granted = results[Permission.storage]?.isGranted ?? false;
+      }
       _requesting = false;
     });
   }

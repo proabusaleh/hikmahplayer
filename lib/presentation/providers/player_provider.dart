@@ -17,6 +17,7 @@ export '../../features/player/domain/models/playback_settings.dart'
 class PlayerState {
   const PlayerState({
     this.currentMediaId,
+    this.currentItem,
     this.queueIds = const [],
     this.isPlaying = false,
     this.isBuffering = false,
@@ -32,6 +33,7 @@ class PlayerState {
   });
 
   final String? currentMediaId;
+  final player_media.MediaItem? currentItem;
   final List<String> queueIds;
   final bool isPlaying;
   final bool isBuffering;
@@ -52,6 +54,7 @@ class PlayerState {
 
   PlayerState copyWith({
     String? currentMediaId,
+    player_media.MediaItem? currentItem,
     List<String>? queueIds,
     bool? isPlaying,
     bool? isBuffering,
@@ -68,6 +71,7 @@ class PlayerState {
   }) {
     return PlayerState(
       currentMediaId: currentMediaId ?? this.currentMediaId,
+      currentItem: currentItem ?? this.currentItem,
       queueIds: queueIds ?? this.queueIds,
       isPlaying: isPlaying ?? this.isPlaying,
       isBuffering: isBuffering ?? this.isBuffering,
@@ -88,6 +92,7 @@ class PlayerState {
       identical(this, other) ||
       other is PlayerState &&
           other.currentMediaId == currentMediaId &&
+          other.currentItem == currentItem &&
           listEquals(other.queueIds, queueIds) &&
           other.isPlaying == isPlaying &&
           other.isBuffering == isBuffering &&
@@ -104,6 +109,7 @@ class PlayerState {
   @override
   int get hashCode => Object.hash(
         currentMediaId,
+        currentItem,
         Object.hashAll(queueIds),
         isPlaying,
         isBuffering,
@@ -215,6 +221,7 @@ class PlayerController extends Notifier<PlayerState> {
   PlayerState _snapshot(PlaybackService p) {
     return PlayerState(
       currentMediaId: p.currentMediaId.value,
+      currentItem: p.currentItem,
       queueIds: [
         for (final item in p.queueItems)
           if (item.id.isNotEmpty) item.id,
@@ -271,6 +278,19 @@ class PlayerController extends Notifier<PlayerState> {
     return _playback.openQueue(queue, autoplay: autoplay);
   }
 
+  /// Convenience alias for [play]: opens [item] as a single-item queue.
+  Future<void> playMedia(MediaItem item, {bool autoplay = true}) =>
+      play(item, autoplay: autoplay);
+
+  /// Convenience alias for [playAll]: plays [items] as a queue starting at
+  /// [startIndex].
+  Future<void> playQueue(
+    List<MediaItem> items, {
+    int startIndex = 0,
+    bool autoplay = true,
+  }) =>
+      playAll(items, startIndex: startIndex, autoplay: autoplay);
+
   // --------------------------------------------------------------------
   // Transport control.
   // --------------------------------------------------------------------
@@ -294,6 +314,10 @@ class PlayerController extends Notifier<PlayerState> {
   Future<void> addToQueue(MediaItem item) =>
       _playback.addToQueue(playerMediaFromRow(item));
 
+  /// Inserts [item] immediately after the current item.
+  Future<void> playNext(MediaItem item) =>
+      _playback.playNext(playerMediaFromRow(item));
+
   Future<void> removeFromQueue(int index) => _playback.removeFromQueue(index);
 
   Future<void> clearQueue() => _playback.clearQueue();
@@ -314,6 +338,9 @@ class PlayerController extends Notifier<PlayerState> {
     }
     return _playback.toggleShuffle();
   }
+
+  /// Toggles shuffle on/off.
+  Future<void> toggleShuffle() => _playback.toggleShuffle();
 }
 
 final playerControllerProvider =

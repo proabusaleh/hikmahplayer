@@ -5,7 +5,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/app_scope.dart';
-import '../../../../core/services/library_service.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Modern animated scanning screen that auto-discovers media files.
@@ -22,7 +21,6 @@ class ScanningScreen extends StatefulWidget {
 class _ScanningScreenState extends State<ScanningScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _pulseController;
-  LibraryService? _library;
   bool _scanning = false;
   bool _done = false;
   int _videoCount = 0;
@@ -51,28 +49,36 @@ class _ScanningScreenState extends State<ScanningScreen>
   }
 
   Future<void> _startScan() async {
-    _library = AppScope.of(context).library;
     setState(() {
       _scanning = true;
-      _statusText = 'Scanning folders…';
+      _statusText = 'Scanning your storage…';
+      _currentFolder = 'Internal storage';
     });
 
-    // Listen to library changes to update counts.
-    void onLibraryChanged() => _updateCounts();
-    _library!.addListener(onLibraryChanged);
-
-    // Add common media directories and scan.
-    await _addDefaultFolders();
-    await _library!.scanAll();
-
-    _updateCounts();
-    _library!.removeListener(onLibraryChanged);
-
-    setState(() {
-      _scanning = false;
-      _done = true;
-      _statusText = 'Scan complete!';
-    });
+    try {
+      final result = await AppScope.of(context).mediaScan.scanAll();
+      if (!mounted) return;
+      setState(() {
+        _videoCount = result.videosFound;
+        _audioCount = result.audioFound;
+        _imageCount = 0;
+        _totalFiles = result.totalFound;
+        _scanning = false;
+        _done = true;
+        _statusText = result.errors.isEmpty
+            ? 'Scan complete!'
+            : 'Finished with ${result.errors.length} '
+                'issue${result.errors.length == 1 ? '' : 's'}';
+        _currentFolder = result.totalFound > 0 ? '' : _currentFolder;
+      });
+    } catch (error, stackTrace) {
+      debugPrint('ScanningScreen: scan failed\n$error\n$stackTrace');
+      if (!mounted) return;
+      setState(() {
+        _scanning = false;
+        _statusText = 'Scan could not start';
+      });
+    }
 
     // Auto-advance after a brief pause.
     Timer(const Duration(milliseconds: 1500), () {
@@ -82,40 +88,7 @@ class _ScanningScreenState extends State<ScanningScreen>
 
   void _finish() {
     AppScope.of(context).prefs.onboardingCompleted = true;
-    context.go('/home/videos');
-  }
-
-  Future<void> _addDefaultFolders() async {
-    // The library service handles folder registration.
-    // In a real app we'd use path_provider to get common directories.
-    setState(() => _currentFolder = 'Internal storage');
-  }
-
-  void _updateCounts() {
-    if (_library == null) return;
-    final items = _library!.items;
-    var videos = 0;
-    var audio = 0;
-    var images = 0;
-    for (final item in items) {
-      switch (item.media.type.name) {
-        case 'video':
-          videos++;
-          break;
-        case 'audio':
-          audio++;
-          break;
-        case 'image':
-          images++;
-          break;
-      }
-    }
-    setState(() {
-      _videoCount = videos;
-      _audioCount = audio;
-      _imageCount = images;
-      _totalFiles = items.length;
-    });
+    context.go('/home/video');
   }
 
   @override

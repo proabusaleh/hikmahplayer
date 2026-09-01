@@ -213,6 +213,28 @@ class PlaybackService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Inserts [item] immediately after the currently playing item.
+  Future<void> playNext(MediaItem item) async {
+    if (_queueItems.isEmpty) {
+      await openItem(item);
+      return;
+    }
+    final insertAt = currentIndex.value + 1;
+    final addedAt = _queueItems.length;
+    _queueItems.insert(insertAt, item);
+    final existing = queue.value;
+    queue.value = PlaybackQueue(
+      items: List.of(_queueItems),
+      currentIndex: currentIndex.value,
+      shuffle: existing?.shuffle ?? false,
+    );
+    await _engine.add(_toMedia(item, index: addedAt));
+    if (addedAt != insertAt) {
+      await _engine.move(addedAt, insertAt);
+    }
+    notifyListeners();
+  }
+
   /// Removes the item at [index] from the current queue.
   Future<void> removeFromQueue(int index) async {
     if (index < 0 || index >= _queueItems.length) return;

@@ -10,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.8
 
   # ─── STATE MANAGEMENT ───
   flutter_riverpod: ^2.5.1
@@ -39,14 +40,6 @@ dependencies:
   # ═══════════ PERMISSIONS ═══════════
   permission_handler: ^11.3.1       # Runtime permissions
 
-  # ─── SHARE / PICK ───
-  # NOTE: on_audio_query (spec §5.3) is omitted — its 2.x android module ships
-  # no namespace and AGP 9 no longer derives one from the manifest, so any
-  # build fails at configuration time. Media scanning uses the LibraryService
-  # + drift pipeline instead.
-  # CAUTION: after adding/removing native plugins, run `flutter clean` and
-  # delete android/.gradle before rebuilding — stale intermediates produce
-  # phantom Kotlin/javac "cannot find symbol" failures.
   share_plus: ^13.0.0               # Share media files
   file_picker: ^12.0.0              # Pick files to play
 
@@ -100,26 +93,12 @@ dev_dependencies:
 
   # ─── TESTING ───
   mocktail: ^1.0.3
-  # NOTE: 'riverpod_test' (spec §5.4) is unresolvable under Flutter 3.44:
-  # it pins 'test ^1.16' whose transitive constraints clash with the SDK's
-  # locked test_api 0.7.11 and freezed's analyzer range. Providers are
-  # tested directly via ProviderContainer instead.
-
 
   # ─── ICONS ───
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.4.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
 
-  # The following line ensures that the Material Icons font is
-  # included with your application.
-  uses-material-design: true
 
-  # To add assets to your application, add an assets section here.
-  #
-  # To add custom fonts to your application, add a fonts section here.
+  uses-material-design: true
