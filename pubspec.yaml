@@ -1,6 +1,7 @@
 name: hikmahplayer
-description: "Play with Wisdom — A beautiful media player"
+description: "A new Flutter project."
 publish_to: 'none'
+
 version: 1.0.0+1
 
 environment:
@@ -12,9 +13,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
 
-  # ─── STATE MANAGEMENT ───
-  flutter_riverpod: ^2.5.1
-  riverpod_annotation: ^2.3.5
+  cupertino_icons: ^1.0.8
 
   # ─── NAVIGATION ───
   go_router: ^14.2.0
@@ -23,10 +22,32 @@ dependencies:
   media_kit: ^1.1.10+1              # Cross-platform media engine (libmpv)
   media_kit_video: ^1.2.4           # Video rendering widget
   media_kit_libs_video: ^1.0.4      # Native libs (Android/iOS/Windows)
+  just_audio: ^0.9.39               # Audio-only playback
+  flutter_audio_waveforms: ^1.2.1   # Waveform visualization
+  video_player: ^2.9.1              # Fallback for simpler platforms
 
   # ─── AUDIO SESSION ───
   audio_session: ^0.1.21            # Audio focus, interruptions
-  audio_service: ^0.18.13           # Background audio + notifications
+  audio_service: ^0.18.15           # Background audio + notifications
+
+  # ─── AI & ML (On-Device) ───
+  tflite_flutter: ^0.11.0           # TensorFlow Lite for on-device AI
+  google_mlkit_translation: ^0.9.0  # Translation
+  speech_to_text: ^6.6.0            # Speech recognition
+  whisper_ggml: ^2.4.0              # OpenAI Whisper binding (whisper.cpp)
+
+  # ─── VIDEO PROCESSING ───
+  ffmpeg_kit_flutter: ^6.0.3        # FFmpeg for clip creation & conversion
+  video_thumbnail: ^0.5.3           # Thumbnail generation
+  screenshot: ^3.0.0                # Frame capture
+
+  # ─── SUBTITLE RENDERING ───
+  subtitle_wrapper_package: ^2.2.1  # Advanced subtitle parsing & rendering
+
+  # ─── STATE MANAGEMENT ───
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  freezed_annotation: ^3.0.0
 
   # ─── DATABASE ───
   drift: ^2.18.0                    # SQLite ORM (type-safe)
@@ -34,12 +55,20 @@ dependencies:
 
   # ─── LOCAL STORAGE ───
   shared_preferences: ^2.2.3        # Key-value storage
-  path_provider: ^2.1.3             # App directories
+  path_provider: ^2.1.4             # App directories
   path: ^1.9.0                      # Path manipulation
 
-  # ═══════════ PERMISSIONS ═══════════
+  # ─── PERMISSIONS ───
   permission_handler: ^11.3.1       # Runtime permissions
 
+  # ─── SHARE / PICK ───
+  # NOTE: on_audio_query (spec §5.3) is omitted — its 2.x android module ships
+  # no namespace and AGP 9 no longer derives one from the manifest, so any
+  # build fails at configuration time. Media scanning uses the LibraryService
+  # + drift pipeline instead.
+  # CAUTION: after adding/removing native plugins, run `flutter clean` and
+  # delete android/.gradle before rebuilding — stale intermediates produce
+  # phantom Kotlin/javac "cannot find symbol" failures.
   share_plus: ^13.0.0               # Share media files
   file_picker: ^12.0.0              # Pick files to play
 
@@ -52,6 +81,9 @@ dependencies:
   flutter_staggered_grid_view: ^0.7.0  # Masonry grid (videos)
   sliver_tools: ^0.2.12             # Advanced slivers
   animations: ^2.0.11               # Material motion
+  flutter_animate: ^4.5.0           # Animations
+  flutter_slidable: ^3.1.0          # List actions
+  photo_view: ^0.15.0               # Artwork zoom
 
   # ─── UTILITIES ───
   intl: ^0.20.2                     # Date/number formatting
@@ -60,29 +92,37 @@ dependencies:
   collection: ^1.18.0               # List utilities
   rxdart: ^0.27.7                   # Reactive streams
   logger: ^2.3.0                    # Pretty logging
+  crypto: ^3.0.7                    # Content hashing & duplicate detection
+  dio: ^5.4.0                       # HTTP client
 
   # ─── CODE GENERATION (Annotations) ───
-  freezed_annotation: ^2.4.1        # Immutable models
   json_annotation: ^4.9.0           # JSON serialization
 
   # ─── PLATFORM SPECIFIC ───
   wakelock_plus: ^1.2.5             # Keep screen on during playback
   screen_brightness: ^2.1.11        # Brightness control (gestures)
   volume_controller: ^3.6.0         # Volume control (gestures)
-
-  # ─── RETAINED (imported by existing code) ───
-  crypto: ^3.0.7                    # Content hashing & duplicate detection
-  dio: ^5.4.0                       # HTTP client
   dynamic_color: ^2.1.0             # Material You palettes
-  flutter_animate: ^4.5.0           # Animations
   hive_flutter: ^1.1.0              # Fast cache
-  package_info_plus: ^10.2.1         # App version display
+  flutter_secure_storage: ^11.0.0   # Encrypted vault
+
+  # ─── CONNECTIVITY & STREAMING ───
   web_socket_channel: ^3.0.0        # Real-time sync
+  connectivity_plus: ^6.0.3         # Network state
+  cast: ^2.1.0                      # Chromecast
+  flutter_to_airplay: ^2.1.0        # AirPlay
+
+  # ─── ACCESSIBILITY ───
+  flutter_tts: ^4.0.0               # Text-to-speech
+
+  # ─── PLATFORM DESKTOP ───
+  pip: ^0.0.4                       # Picture-in-Picture mode
+  window_manager: ^0.3.8            # Desktop window
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
   # ─── CODE GENERATION ───
   build_runner: ^2.4.11
@@ -93,12 +133,22 @@ dev_dependencies:
 
   # ─── TESTING ───
   mocktail: ^1.0.3
+  # NOTE: 'riverpod_test' (spec §5.4) is unresolvable under Flutter 3.44:
+  # it pins 'test ^1.16' whose transitive constraints clash with the SDK's
+  # locked test_api 0.7.11 and freezed's analyzer range. Providers are
+  # tested directly via ProviderContainer instead.
+
 
   # ─── ICONS ───
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.4.0
 
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
 flutter:
 
-
+  # The following line ensures that the Material Icons font is
+  # included with your application.
   uses-material-design: true

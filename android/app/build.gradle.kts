@@ -14,6 +14,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     defaultConfig {
         applicationId = "com.hikmah.player"
         minSdk = flutter.minSdkVersion
