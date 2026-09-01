@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/media_scanner.dart';
 
 /// Modern animated permission request screen.
 ///
@@ -41,17 +44,22 @@ class _PermissionScreenState extends State<PermissionScreen>
   }
 
   Future<void> _checkExistingPermissions() async {
-    final storage = await Permission.storage.status;
-    final photos = await Permission.photos.status;
-    final videos = await Permission.videos.status;
-    final audio = await Permission.audio.status;
+    final permissionsToRequest = await _mediaPermissionsToRequest();
+    final granted = <Permission>{};
 
+    for (final permission in permissionsToRequest) {
+      if ((await permission.status).isGranted) {
+        granted.add(permission);
+      }
+    }
+
+    final result = _interpretGranted(permissionsToRequest, granted);
     setState(() {
-      _statuses['Storage'] = storage.isGranted;
-      _statuses['Photos'] = photos.isGranted;
-      _statuses['Videos'] = videos.isGranted;
-      _statuses['Audio'] = audio.isGranted;
-      _allGranted = storage.isGranted && photos.isGranted && videos.isGranted && audio.isGranted;
+      _statuses['Storage'] = result.storage;
+      _statuses['Photos'] = result.photos;
+      _statuses['Videos'] = result.videos;
+      _statuses['Audio'] = result.audio;
+      _allGranted = result.allGranted;
     });
 
     if (_allGranted) {
@@ -59,28 +67,89 @@ class _PermissionScreenState extends State<PermissionScreen>
     }
   }
 
+  /// Maps the set of granted [permissions] to the four on-screen states.
+  ///
+  /// On Android 12 and below a single [Permission.storage] grant covers all
+  /// media, so it counts as granting photos, videos and audio together.
+  ({bool storage, bool photos, bool videos, bool audio, bool allGranted})
+      _interpretGranted(List<Permission> requested, Set<Permission> granted) {
+    final storage = granted.contains(Permission.storage);
+    final photos = granted.contains(Permission.photos);
+    final videos = granted.contains(Permission.videos);
+    final audio = granted.contains(Permission.audio);
+
+    final storageCoversAll = storage && !requested.contains(Permission.photos);
+    final photosGranted = photos || storageCoversAll;
+    final videosGranted = videos || storageCoversAll;
+    final audioGranted = audio || storageCoversAll;
+
+    return (
+      storage: storage || photos || videos || audio,
+      photos: photosGranted,
+      videos: videosGranted,
+      audio: audioGranted,
+      allGranted: photosGranted && videosGranted && audioGranted,
+    );
+  }
+
   Future<void> _requestPermissions() async {
     setState(() => _requesting = true);
+    try {
+      // Request each permission individually. Batching the granular
+      // READ_MEDIA_* permissions into a single request can leave the native
+      // handler's bookkeeping in a state where the result callback never
+      // fires, which would leave this screen stuck on its loading spinner.
+      // A separate request per permission is also the reliable way to get a
+      // dialog on Android 13+ for every media type.
+      final permissionsToRequest = await _mediaPermissionsToRequest();
+      final granted = <Permission>{};
 
-    final results = await [
-      Permission.storage,
-      Permission.photos,
-      Permission.videos,
-      Permission.audio,
-    ].request();
+      for (final permission in permissionsToRequest) {
+        // Guard against a native request ever hanging (e.g. the OS killing
+        // the activity mid-dialog). Without this the spinner would spin
+        // forever even though the dialog was actually granted.
+        final status = await permission
+            .request()
+            .timeout(const Duration(seconds: 10));
+        if (status.isGranted || status.isLimited) {
+          granted.add(permission);
+        }
+      }
 
-    setState(() {
-      _statuses['Storage'] = results[Permission.storage]?.isGranted ?? false;
-      _statuses['Photos'] = results[Permission.photos]?.isGranted ?? false;
-      _statuses['Videos'] = results[Permission.videos]?.isGranted ?? false;
-      _statuses['Audio'] = results[Permission.audio]?.isGranted ?? false;
-      _allGranted = results.values.every((r) => r.isGranted);
-      _requesting = false;
-    });
+      final result = _interpretGranted(permissionsToRequest, granted);
+      setState(() {
+        _statuses['Storage'] = result.storage;
+        _statuses['Photos'] = result.photos;
+        _statuses['Videos'] = result.videos;
+        _statuses['Audio'] = result.audio;
+        _allGranted = result.allGranted;
+      });
 
-    if (_allGranted) {
-      widget.onPermissionsGranted?.call();
+      if (_allGranted) {
+        widget.onPermissionsGranted?.call();
+      }
+    } finally {
+      // Always clear the loading state so the button is usable again, even
+      // if a permission request threw or timed out.
+      if (mounted) setState(() => _requesting = false);
     }
+  }
+
+  /// The permissions to request for this platform, in a stable order.
+  ///
+  /// On Android 13+ (API 33) `Permission.storage` is never grantable, so the
+  /// granular READ_MEDIA_* permissions are requested instead. On Android 12
+  /// and below those granular permissions don't exist, so we fall back to
+  /// `Permission.storage`.
+  Future<List<Permission>> _mediaPermissionsToRequest() async {
+    if (!Platform.isAndroid) {
+      return [Permission.storage, Permission.photos, Permission.videos, Permission.audio];
+    }
+    final isAndroid13Plus = await MediaScanner.sdkInt() >= 33;
+    if (isAndroid13Plus) {
+      return [Permission.photos, Permission.videos, Permission.audio];
+    }
+    return [Permission.storage];
   }
 
   @override

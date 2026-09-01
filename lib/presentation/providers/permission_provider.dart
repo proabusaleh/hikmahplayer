@@ -1,4 +1,7 @@
+import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/utils/media_scanner.dart';
 
 sealed class PermissionStatusState {
   const PermissionStatusState();
@@ -22,14 +25,70 @@ class PermissionController extends Notifier<PermissionStatusState> {
   PermissionStatusState build() => const PermissionUnknown();
 
   Future<void> requestStoragePermission() async {
-    throw UnimplementedError();
+    final permissions = await _getPermissionsToRequest();
+    final statuses = await permissions.request();
+    
+    bool allGranted = true;
+    bool permanentlyDenied = false;
+
+    for (final status in statuses.values) {
+      if (!status.isGranted) {
+        allGranted = false;
+        if (status.isPermanentlyDenied) {
+          permanentlyDenied = true;
+        }
+      }
+    }
+
+    if (allGranted) {
+      state = const PermissionGranted();
+    } else {
+      state = PermissionDenied(isPermanentlyDenied: permanentlyDenied);
+    }
   }
 
   Future<void> checkStatus() async {
-    throw UnimplementedError();
+    final permissions = await _getPermissionsToRequest();
+    bool allGranted = true;
+    bool permanentlyDenied = false;
+
+    for (final permission in permissions) {
+      final status = await permission.status;
+      if (!status.isGranted) {
+        allGranted = false;
+        if (status.isPermanentlyDenied) {
+          permanentlyDenied = true;
+        }
+      }
+    }
+
+    if (allGranted) {
+      state = const PermissionGranted();
+    } else {
+      state = PermissionDenied(isPermanentlyDenied: permanentlyDenied);
+    }
   }
 
-  void openAppSettings() => throw UnimplementedError();
+  Future<void> openSettings() async {
+    await openAppSettings();
+  }
+
+  Future<List<Permission>> _getPermissionsToRequest() async {
+    if (!Platform.isAndroid) {
+      return [Permission.storage];
+    }
+    
+    final sdkInt = await MediaScanner.sdkInt();
+    if (sdkInt >= 33) {
+      return [
+        Permission.photos,
+        Permission.videos,
+        Permission.audio,
+      ];
+    } else {
+      return [Permission.storage];
+    }
+  }
 }
 
 final permissionProvider =
