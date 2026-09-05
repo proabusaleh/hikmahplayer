@@ -12,9 +12,6 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-
-  cupertino_icons: ^1.0.8
-
   # ─── NAVIGATION ───
   go_router: ^14.2.0
 
@@ -127,7 +124,7 @@ dev_dependencies:
   # ─── CODE GENERATION ───
   build_runner: ^2.4.11
   riverpod_generator: ^2.4.0
-  freezed: ^2.5.2
+  freezed: 3.1.0
   json_serializable: ^6.8.0
   drift_dev: ^2.18.0
 
@@ -152,3 +149,59 @@ flutter:
   # The following line ensures that the Material Icons font is
   # included with your application.
   uses-material-design: true
+
+  # ─── ASSETS ───
+  assets:
+    - assets/images/splash/
+    - assets/images/onboarding/
+    - assets/images/empty_states/
+    - assets/icons/
+
+  # ─── FONTS ───
+  fonts:
+    - family: NotoSansArabic
+      fonts:
+        - asset: assets/fonts/NotoSansArabic-Regular.ttf
+        - asset: assets/fonts/NotoSansArabic-Bold.ttf
+          weight: 700
+
+# ═══════════════════════════════════════════════════════════
+#  LAUNCHER ICON CONFIG (uses Image 2)
+# ═══════════════════════════════════════════════════════════
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+
+  # Adaptive icon (Android 8+)
+  adaptive_icon_background: "#0A0E27"
+  adaptive_icon_foreground: "assets/icons/app_icon_foreground.png"
+
+  min_sdk_android: 24
+
+  # Windows
+  windows:
+    generate: true
+    image_path: "assets/icons/app_icon.png"
+    icon_size: 256
+
+# ═══════════════════════════════════════════════════════════
+#  NATIVE SPLASH CONFIG (uses splash logo)
+# ═══════════════════════════════════════════════════════════
+flutter_native_splash:
+  color: "#0A0E27"                # Deep navy background
+  image: assets/icons/splash_logo.png
+  color_dark: "#0A0E27"
+  image_dark: assets/icons/splash_logo.png
+
+  android_12:
+    color: "#0A0E27"
+    color_dark: "#0A0E27"
+    icon_background_color: "#0A0E27"
+    icon_background_color_dark: "#0A0E27"
+    image: assets/icons/splash_logo_android12.png
+    image_dark: assets/icons/splash_logo_android12.png
+
+  android: true
+  ios: true
+  web: false
