@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ui' show DartPluginRegistrant;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +13,9 @@ import 'core/di/app_services.dart';
 import 'core/router/app_router.dart';
 import 'core/storage/storage_locations.dart';
 import 'presentation/providers/services_provider.dart';
+import 'providers/notification_bridge.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   // Any uncaught error is printed loudly (it is the source of "blank screen"
@@ -28,9 +33,22 @@ void main() {
 Future<void> _boot() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
+    // Some federated plugins (including path_provider on current desktop and
+    // Android implementations) register from Dart rather than the host
+    // runner. Ensure that registration has completed before startup touches
+    // the filesystem.
+    if (!kIsWeb) {
+      DartPluginRegistrant.ensureInitialized();
+    }
     MediaKit.ensureInitialized();
     await Hive.initFlutter();
-    await StorageLocations.clearTemp();
+    // Cache cleanup is cosmetic — never let it block startup when the
+    // path_provider channel is missing (e.g. plugin-less test hosts).
+    try {
+      await StorageLocations.clearTemp();
+    } catch (error) {
+      debugPrint('Hikmah cache cleanup skipped: $error');
+    }
 
     // Phones start portrait; the player screens switch to landscape
     // (and restore this) via SystemChrome while active.
@@ -50,21 +68,38 @@ Future<void> _boot() async {
 
     final services = await AppServices.create();
     unawaited(services.theme.refreshDynamicSeed());
+    unawaited(_initNotifications());
     final router = createAppRouter(prefs: services.prefs);
     runApp(
       ProviderScope(
-        overrides: [appServicesProvider.overrideWithValue(services)],
-        child: HikmahApp(services: services, routerConfig: router),
+        overrides: [
+          appServicesProvider.overrideWithValue(services),
+        ],
+        child: HikmahApp(
+          services: services,
+          routerConfig: router,
+        ),
       ),
     );
-    // Keep the library fresh on later launches: re-discover device media
-    // in the background once the user has granted access during onboarding.
     unawaited(_refreshMediaLibrary(services));
   } catch (error, stack) {
     // Never leave the user staring at a blank screen: surface the failure so
     // the underlying cause is visible and can be fixed.
     debugPrint('Hikmah startup failure: $error\n$stack');
     _runFallback(error);
+  }
+}
+
+/// Initializes local notifications, notification tap handling, and the
+/// audio_service media session off the critical path. Failures are logged and
+/// ignored so a broken notification subsystem can never block the UI.
+Future<void> _initNotifications() async {
+  try {
+    final container = ProviderContainer();
+    container.read(notificationBridgeProvider);
+    debugPrint('Hikmah notifications ready');
+  } catch (error, stack) {
+    debugPrint('Hikmah notification init failed: $error\n$stack');
   }
 }
 

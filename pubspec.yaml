@@ -26,16 +26,21 @@ dependencies:
   # ─── AUDIO SESSION ───
   audio_session: ^0.1.21            # Audio focus, interruptions
   audio_service: ^0.18.15           # Background audio + notifications
+  flutter_local_notifications: ^17.2.3  # Local notifications (music, video, download, transfer)
 
   # ─── AI & ML (On-Device) ───
-  tflite_flutter: ^0.11.0           # TensorFlow Lite for on-device AI
-  google_mlkit_translation: ^0.9.0  # Translation
-  speech_to_text: ^6.6.0            # Speech recognition
-  whisper_ggml: ^2.4.0              # OpenAI Whisper binding (whisper.cpp)
+  # NOTE: tflite_flutter / google_mlkit_translation / whisper_ggml REMOVED —
+  # none are imported by lib/ or test/ (the AI layer is engine-agnostic via
+  # lib/core/services/ai_service.dart), and tflite_flutter ships TensorFlow
+  # Lite AARs that all share the `org.tensorflow.lite` namespace, which AGP 9
+  # rejects during the manifest merge. Re-add current versions with the engine
+  # when the transcription/translation feature is implemented.
 
   # ─── VIDEO PROCESSING ───
-  ffmpeg_kit_flutter: ^6.0.3        # FFmpeg for clip creation & conversion
-  video_thumbnail: ^0.5.3           # Thumbnail generation
+  # NOTE: ffmpeg_kit_flutter REMOVED — its Maven artifacts
+  # (com.arthenica:ffmpeg-kit-https:6.0-2) were deleted from Maven Central
+  # (upstream retired), breaking the Gradle build. Exports now use the system
+  # `ffmpeg` binary via ProcessExportBackend (lib/core/services/export_backend.dart).
   screenshot: ^3.0.0                # Frame capture
 
   # ─── SUBTITLE RENDERING ───
@@ -43,11 +48,9 @@ dependencies:
 
   # ─── STATE MANAGEMENT ───
   flutter_riverpod: ^2.5.1
-  riverpod_annotation: ^2.3.5
-  freezed_annotation: ^3.0.0
 
   # ─── DATABASE ───
-  drift: ^2.18.0                    # SQLite ORM (type-safe)
+  drift: ^2.34.0                    # SQLite ORM (type-safe)
   sqlite3_flutter_libs: ^0.5.21     # SQLite native libs
 
   # ─── LOCAL STORAGE ───
@@ -92,8 +95,8 @@ dependencies:
   crypto: ^3.0.7                    # Content hashing & duplicate detection
   dio: ^5.4.0                       # HTTP client
 
-  # ─── CODE GENERATION (Annotations) ───
-  json_annotation: ^4.9.0           # JSON serialization
+  # ─── APP INFO ───
+  package_info_plus: ^10.2.1        # App version / build number
 
   # ─── PLATFORM SPECIFIC ───
   wakelock_plus: ^1.2.5             # Keep screen on during playback
@@ -122,11 +125,14 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
   # ─── CODE GENERATION ───
-  build_runner: ^2.4.11
-  riverpod_generator: ^2.4.0
-  freezed: 3.1.0
-  json_serializable: ^6.8.0
-  drift_dev: ^2.18.0
+  build_runner: ^2.15.0
+  drift_dev: ^2.34.0
+
+  # NOTE: freezed / riverpod_generator / json_serializable were removed: the
+  # app has no @freezed / @riverpod / @JsonSerializable annotations, and their
+  # pinned analyzer ranges (<8.0.0) prevent build_runner from analyzing code
+  # under the Dart 3.10+ language features used by the current SDK toolchain.
+  # Re-add them (with matching annotation packages) if codegen models land.
 
   # ─── TESTING ───
   mocktail: ^1.0.3

@@ -5,11 +5,6 @@ import 'core/di/app_scope.dart';
 import 'core/di/app_services.dart';
 import 'core/theme/app_theme.dart';
 
-/// Root widget of Hikmah Player.
-///
-/// Wraps the shared [AppServices] in an [AppScope], exposes the Material 3
-/// theme system (light / dark / system, dynamic color, seed override) and
-/// boots the GoRouter navigation graph.
 class HikmahApp extends StatelessWidget {
   const HikmahApp({
     super.key,

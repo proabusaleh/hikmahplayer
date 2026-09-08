@@ -191,6 +191,7 @@ class PlayerService {
 
   Future<void> next() => _playback.next();
   Future<void> previous() => _playback.previous();
+  Future<void> jumpTo(int index) => _playback.jumpTo(index);
   Future<void> addToQueue(MediaItem item) => _playback.addToQueue(item);
   Future<void> removeFromQueue(int index) =>
       _playback.removeFromQueue(index);

@@ -6,13 +6,8 @@ import '../core/utils/app_logger.dart';
 import '../features/player/domain/models/playback_state.dart' as app;
 import 'player_service.dart';
 
-/// Background audio service using audio_service package.
-///
-/// Handles lock screen controls, notification media controls, and
-/// audio focus management. Bridges [PlayerService] state to the
-/// system media session.
 class BackgroundAudioService extends audio.BaseAudioHandler
-    with audio.SeekHandler {
+    with audio.QueueHandler, audio.SeekHandler {
   final PlayerService _playerService;
 
   BackgroundAudioService(this._playerService) {
@@ -27,10 +22,6 @@ class BackgroundAudioService extends audio.BaseAudioHandler
 
     logInfo('BackgroundAudioService initialized');
   }
-
-  // ═══════════════════════════════════════
-  //  MEDIA CONTROLS (from notification / lock screen)
-  // ═══════════════════════════════════════
 
   @override
   Future<void> play() => _playerService.play();
@@ -61,9 +52,22 @@ class BackgroundAudioService extends audio.BaseAudioHandler
     await _playerService.stop();
   }
 
-  // ═══════════════════════════════════════
-  //  UPDATE NOTIFICATION
-  // ═══════════════════════════════════════
+  @override
+  Future<void> skipToQueueItem(int index) async {
+    await _playerService.jumpTo(index);
+  }
+
+  @override
+  Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]) async {
+    switch (name) {
+      case 'like':
+        break;
+      case 'close':
+        await stop();
+        break;
+    }
+    return null;
+  }
 
   void _updateMediaItem(app.PlaybackState state) {
     final media = state.currentMedia;
@@ -75,8 +79,7 @@ class BackgroundAudioService extends audio.BaseAudioHandler
       artist: media.artist ?? 'Unknown',
       album: media.album,
       duration: media.duration,
-      artUri:
-          media.artworkUri != null ? Uri.parse(media.artworkUri!) : null,
+      artUri: media.artworkUri != null ? Uri.parse(media.artworkUri!) : null,
       genre: media.genres.isNotEmpty ? media.genres.first : null,
     ));
   }
@@ -93,26 +96,30 @@ class BackgroundAudioService extends audio.BaseAudioHandler
     };
 
     playbackState.add(audio.PlaybackState(
-      processingState: processingState,
-      playing: state.isPlaying,
       controls: [
         audio.MediaControl.skipToPrevious,
-        if (state.isPlaying)
-          audio.MediaControl.pause
-        else
-          audio.MediaControl.play,
+        if (state.isPlaying) audio.MediaControl.pause else audio.MediaControl.play,
         audio.MediaControl.skipToNext,
+        audio.MediaControl.stop,
       ],
       systemActions: const {
         audio.MediaAction.seek,
         audio.MediaAction.seekForward,
         audio.MediaAction.seekBackward,
-        audio.MediaAction.setSpeed,
+        audio.MediaAction.skipToNext,
+        audio.MediaAction.skipToPrevious,
+        audio.MediaAction.play,
+        audio.MediaAction.pause,
+        audio.MediaAction.stop,
       },
       androidCompactActionIndices: const [0, 1, 2],
-      speed: state.speed,
+      processingState: processingState,
+      playing: state.isPlaying,
       updatePosition: state.position,
       bufferedPosition: state.bufferedPosition,
+      speed: state.speed,
+      queueIndex: state.currentIndex,
+      updateTime: DateTime.now(),
     ));
   }
 }
