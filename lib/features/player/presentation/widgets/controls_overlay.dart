@@ -450,17 +450,19 @@ class _AbLoopTab extends StatelessWidget {
             Wrap(
               spacing: 8,
               children: [
-                for (final (label, duration) in [
-                  ('Off', null),
-                  ('10 min', const Duration(minutes: 10)),
-                  ('30 min', const Duration(minutes: 30)),
-                  ('1 hour', const Duration(hours: 1)),
-                  ('End of item', const Duration(hours: 99)),
+                for (final (label, mode, duration) in [
+                  ('Off', null, null),
+                  ('10 min', SleepMode.timer, const Duration(minutes: 10)),
+                  ('30 min', SleepMode.timer, const Duration(minutes: 30)),
+                  ('1 hour', SleepMode.timer, const Duration(hours: 1)),
+                  ('End of item', SleepMode.endOfMedia, null),
                 ])
                   ChoiceChip(
                     label: Text(label),
                     selected: _isSelected(label),
-                    onSelected: (_) => controller.setSleepTimer(duration),
+                    onSelected: (_) => mode == null
+                        ? controller.cancelSleepTimer()
+                        : controller.setSleepTimer(mode, duration: duration),
                   ),
               ],
             ),
@@ -478,11 +480,13 @@ class _AbLoopTab extends StatelessWidget {
   }
 
   bool _isSelected(String label) {
-    if (label == 'Off') return controller.sleepRemaining == null;
-    if (controller.sleepRemaining == null) return false;
-    final minutes = controller.sleepRemaining!.inMinutes;
+    final mode = controller.sleepMode;
+    if (mode == null) return label == 'Off';
+    if (label == 'End of item') return mode == SleepMode.endOfMedia;
+    if (mode != SleepMode.timer) return false;
+    final minutes = controller.sleepRemaining?.inMinutes ?? 0;
     return label == '10 min' && minutes <= 10 ||
-        label == '30 min' && minutes <= 30 ||
+        label == '30 min' && minutes > 10 && minutes <= 30 ||
         label == '1 hour' && minutes > 30;
   }
 }

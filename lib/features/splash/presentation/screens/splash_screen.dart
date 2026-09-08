@@ -5,12 +5,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/app_scope.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Modern animated splash screen shown on app launch.
-///
-/// Displays the Hikmah branding with a pulsing glow, animated logo,
-/// and a shimmer loading indicator while the app initializes.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -18,8 +15,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late final AnimationController _glowController;
 
   @override
@@ -33,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
     Timer(const Duration(milliseconds: 2200), () {
       if (!mounted) return;
       final onboarded = AppScope.of(context).prefs.onboardingCompleted;
-      context.go(onboarded ? '/home/video' : '/onboarding');
+      context.go(onboarded ? RouteNames.home : '/onboarding');
     });
   }
 
@@ -65,7 +61,6 @@ class _SplashScreenState extends State<SplashScreen>
         ),
         child: Stack(
           children: [
-            // Animated glow orb behind the logo
             Center(
               child: AnimatedBuilder(
                 animation: _glowController,
@@ -87,12 +82,10 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
 
-            // Main content
             Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Logo icon
                   Container(
                     width: 88,
                     height: 88,
@@ -114,24 +107,14 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.play_circle_filled,
-                      size: 48,
-                      color: Colors.white,
-                    ),
+                    child: const Icon(Icons.play_arrow_rounded, size: 48, color: Colors.white),
                   )
                       .animate()
                       .fadeIn(duration: 600.ms, delay: 200.ms)
-                      .scale(
-                        begin: const Offset(0.8, 0.8),
-                        duration: 600.ms,
-                        delay: 200.ms,
-                        curve: Curves.easeOutBack,
-                      ),
+                      .scale(begin: const Offset(0.8, 0.8), duration: 600.ms, delay: 200.ms, curve: Curves.easeOutBack),
 
                   const SizedBox(height: 24),
 
-                  // App name
                   Text(
                     'Hikmah',
                     style: theme.textTheme.headlineLarge?.copyWith(
@@ -160,15 +143,11 @@ class _SplashScreenState extends State<SplashScreen>
 
                   const SizedBox(height: 48),
 
-                  // Shimmer loading dots
-                  _LoadingDots()
-                      .animate()
-                      .fadeIn(duration: 400.ms, delay: 1000.ms),
+                  _LoadingDots().animate().fadeIn(duration: 400.ms, delay: 1000.ms),
                 ],
               ),
             ),
 
-            // Version tag at bottom
             Positioned(
               bottom: 32,
               left: 0,
@@ -194,17 +173,13 @@ class _LoadingDots extends StatefulWidget {
   State<_LoadingDots> createState() => _LoadingDotsState();
 }
 
-class _LoadingDotsState extends State<_LoadingDots>
-    with SingleTickerProviderStateMixin {
+class _LoadingDotsState extends State<_LoadingDots> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat();
   }
 
   @override

@@ -61,8 +61,8 @@ abstract final class AppButtonTheme {
 
   static FloatingActionButtonThemeData fab(ColorScheme scheme) =>
       FloatingActionButtonThemeData(
-        backgroundColor: scheme.primaryContainer,
-        foregroundColor: scheme.onPrimaryContainer,
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusCard),

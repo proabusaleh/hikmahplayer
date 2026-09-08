@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -7,6 +8,17 @@ class StorageLocations {
   StorageLocations._();
 
   static const int maxThumbnailCacheBytes = 200 * 1024 * 1024;
+
+  /// Platform dirs may be unavailable on desktop/test hosts without the
+  /// path_provider channel; fall back to the system temp dir so startup and
+  /// the storage screen degrade gracefully instead of throwing.
+  static Future<String> _platformCacheRoot() async {
+    try {
+      return (await getTemporaryDirectory()).path;
+    } on MissingPluginException {
+      return Directory.systemTemp.path;
+    }
+  }
 
   static Future<Directory> _ensure(String path) async {
     final dir = Directory(path);
@@ -19,8 +31,7 @@ class StorageLocations {
     return _ensure(p.join(support.path, 'database')).then((d) => d.path);
   }
 
-  static Future<String> cacheRoot() async =>
-      (await getTemporaryDirectory()).path;
+  static Future<String> cacheRoot() => _platformCacheRoot();
 
   static Future<String> videoThumbnails({String size = 'medium'}) async {
     final root = await cacheRoot();

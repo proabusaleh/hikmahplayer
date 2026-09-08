@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/app_scope.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Modern animated scanning screen that auto-discovers media files.
@@ -51,7 +52,7 @@ class _ScanningScreenState extends State<ScanningScreen>
   Future<void> _startScan() async {
     setState(() {
       _scanning = true;
-      _statusText = 'Scanning your storage…';
+      _statusText = 'Scanning all storage…';
       _currentFolder = 'Internal storage';
     });
 
@@ -88,7 +89,7 @@ class _ScanningScreenState extends State<ScanningScreen>
 
   void _finish() {
     AppScope.of(context).prefs.onboardingCompleted = true;
-    context.go('/home/video');
+    context.go(RouteNames.home);
   }
 
   @override

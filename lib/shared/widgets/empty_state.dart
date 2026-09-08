@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Friendly empty-state placeholder used across the library, AI and
-/// creative sections.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
@@ -34,35 +32,21 @@ class EmptyState extends StatelessWidget {
                 color: theme.colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 40,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              child: Icon(icon, size: 40, color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
             ),
             const SizedBox(height: 20),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium,
-            ),
+            Text(title, textAlign: TextAlign.center, style: theme.textTheme.titleMedium),
             if (message != null) ...[
               const SizedBox(height: 8),
               Text(
                 message!,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: onAction,
-                icon: const Icon(Icons.add),
-                label: Text(actionLabel!),
-              ),
+              FilledButton.icon(onPressed: onAction, icon: const Icon(Icons.add), label: Text(actionLabel!)),
             ],
           ],
         ),

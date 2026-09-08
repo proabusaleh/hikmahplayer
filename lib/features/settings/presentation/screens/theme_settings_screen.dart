@@ -20,31 +20,17 @@ class ThemeSettingsScreen extends StatelessWidget {
             onChanged: (v) => controller.setThemeMode(v!),
             child: const Column(
               children: [
-                RadioListTile<ThemeMode>(
-                  title: Text('Light'),
-                  value: ThemeMode.light,
-                ),
-                RadioListTile<ThemeMode>(
-                  title: Text('Dark'),
-                  value: ThemeMode.dark,
-                ),
-                RadioListTile<ThemeMode>(
-                  subtitle: Text('Follows device setting'),
-                  title: Text('System'),
-                  value: ThemeMode.system,
-                ),
+                RadioListTile<ThemeMode>(title: Text('Light'), value: ThemeMode.light),
+                RadioListTile<ThemeMode>(title: Text('Dark'), value: ThemeMode.dark),
+                RadioListTile<ThemeMode>(subtitle: Text('Follows device setting'), title: Text('System'), value: ThemeMode.system),
               ],
             ),
           ),
           SwitchListTile(
             title: const Text('Use system accent colors'),
-            subtitle: Text(controller.dynamicSeed != null
-                ? 'Follows your OS accent color'
-                : 'Not available on this device'),
+            subtitle: Text(controller.dynamicSeed != null ? 'Follows your OS accent color' : 'Not available on this device'),
             value: controller.dynamicSeed != null && controller.useDynamicColor,
-            onChanged: controller.dynamicSeed != null
-                ? (v) => controller.setUseDynamicColor(v)
-                : null,
+            onChanged: controller.dynamicSeed != null ? (v) => controller.setUseDynamicColor(v) : null,
           ),
           SwitchListTile(
             title: const Text('Pure black dark mode'),
@@ -62,10 +48,7 @@ class ThemeSettingsScreen extends StatelessWidget {
                 for (var i = 0; i < AppColors.seedChoices.length; i++)
                   _SeedSwatch(
                     choice: AppColors.seedChoices[i],
-                    selected:
-                        !controller.useDynamicColor &&
-                            controller.seedChoice.id ==
-                                AppColors.seedChoices[i].id,
+                    selected: !controller.useDynamicColor && controller.seedChoice.id == AppColors.seedChoices[i].id,
                     onTap: () => controller.setSeedColorIndex(i),
                   ),
               ],
@@ -99,11 +82,7 @@ class _SectionLabel extends StatelessWidget {
 }
 
 class _SeedSwatch extends StatelessWidget {
-  const _SeedSwatch({
-    required this.choice,
-    required this.selected,
-    required this.onTap,
-  });
+  const _SeedSwatch({required this.choice, required this.selected, required this.onTap});
 
   final SeedChoice choice;
   final bool selected;
@@ -121,15 +100,11 @@ class _SeedSwatch extends StatelessWidget {
           color: choice.color,
           shape: BoxShape.circle,
           border: Border.all(
-            color: selected
-                ? Theme.of(context).colorScheme.onSurface
-                : Colors.transparent,
+            color: selected ? Theme.of(context).colorScheme.onSurface : Colors.transparent,
             width: 3,
           ),
         ),
-        child: selected
-            ? const Icon(Icons.check, color: Colors.white)
-            : null,
+        child: selected ? const Icon(Icons.check, color: Colors.white) : null,
       ),
     );
   }

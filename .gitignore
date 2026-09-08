@@ -44,5 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Local release keystore + signing config (never commit secrets)
+/android/app/key.properties
+*.jks
+*.keystore
+
 # Gradle build outputs
 /android/build/

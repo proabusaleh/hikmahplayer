@@ -1,8 +1,10 @@
+import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hikmahplayer/app.dart';
 import 'package:hikmahplayer/core/di/app_services.dart';
 import 'package:hikmahplayer/core/router/app_router.dart';
+import 'package:hikmahplayer/core/storage/app_database.dart';
 import 'package:hikmahplayer/presentation/providers/services_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,7 +19,9 @@ void main() {
   testWidgets('app boots and navigates splash -> onboarding', (tester) async {
     SharedPreferences.setMockInitialValues({});
 
-    final services = await AppServices.create();
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+    final services = await AppServices.create(database: db);
     final router = createAppRouter(prefs: services.prefs);
 
     await tester.pumpWidget(

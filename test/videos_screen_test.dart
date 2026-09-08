@@ -62,6 +62,13 @@ void main() {
 
     expect(find.text('Friday Khutbah'), findsOneWidget);
     expect(find.textContaining('2:00'), findsOneWidget);
+
+    // Drift schedules a zero-duration timer when a watched query stream is
+    // cancelled during widget disposal. Tear the screen down inside the test
+    // body (and flush the timer) before the DB is closed so no timers are
+    // pending when the test framework checks invariants.
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
   });
 
   testWidgets('shows the empty state when nothing is indexed', (tester) async {
@@ -78,6 +85,11 @@ void main() {
     await tester.pump();
 
     expect(find.text('No videos yet'), findsOneWidget);
-    expect(find.text('Rescan device'), findsOneWidget);
+    expect(find.text('Rescan storage'), findsOneWidget);
+
+    // See note in the previous test: settle the watched stream before the
+    // test ends so no drift timers remain pending.
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
   });
 }

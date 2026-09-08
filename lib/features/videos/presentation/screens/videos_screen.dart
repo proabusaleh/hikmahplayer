@@ -69,7 +69,7 @@ class _VideosScreenState extends State<VideosScreen> {
             )
           else
             IconButton(
-              tooltip: 'Rescan device',
+              tooltip: 'Rescan all storage',
               icon: const Icon(Icons.refresh),
               onPressed: _rescan,
             ),
@@ -113,7 +113,7 @@ class _VideosScreenState extends State<VideosScreen> {
         child: OutlinedButton.icon(
           onPressed: _scanning ? null : _rescan,
           icon: const Icon(Icons.refresh),
-          label: const Text('Rescan device'),
+          label: const Text('Rescan storage'),
         ),
       );
 }

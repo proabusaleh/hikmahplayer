@@ -27,7 +27,7 @@ class AboutScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              child: const Icon(Icons.play_circle_fill, size: 48),
+              child: const Icon(Icons.play_arrow_rounded, size: 48, color: Colors.white),
             ),
             const SizedBox(height: 16),
             Text('Hikmah Player', style: theme.textTheme.headlineSmall),
@@ -38,11 +38,8 @@ class AboutScreen extends StatelessWidget {
               builder: (context, snapshot) => Text(
                 snapshot.data == null
                     ? 'Version …'
-                    : 'Version ${snapshot.data!.version} '
-                        '(+${snapshot.data!.buildNumber})',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                    : 'Version ${snapshot.data!.version} (+${snapshot.data!.buildNumber})',
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ),
           ],

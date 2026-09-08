@@ -51,6 +51,30 @@ class PrefsService {
   set resumePlayback(bool value) =>
       _prefs.setBool(PrefKeys.resumePlayback, value);
 
+  /// Whether the last chosen playback speed should be restored for each video.
+  bool get rememberVideoSpeed => _prefs.getBool(PrefKeys.rememberVideoSpeed) ?? true;
+  set rememberVideoSpeed(bool value) =>
+      _prefs.setBool(PrefKeys.rememberVideoSpeed, value);
+
+  /// Quick-seek step in seconds used by the enhanced video player.
+  int get seekStepSeconds => _prefs.getInt(PrefKeys.seekStepSeconds) ?? 10;
+  set seekStepSeconds(int value) =>
+      _prefs.setInt(PrefKeys.seekStepSeconds, value);
+
+  /// Preferred orientation of the enhanced video player (`auto` by default).
+  String get videoOrientation =>
+      _prefs.getString(PrefKeys.videoOrientation) ?? 'auto';
+  set videoOrientation(String value) =>
+      _prefs.setString(PrefKeys.videoOrientation, value);
+
+  /// Returns the last playback speed used for [mediaId] (1.0 when unknown).
+  double videoSpeed(String mediaId) =>
+      _prefs.getDouble('${PrefKeys.videoSpeedPrefix}$mediaId') ?? 1.0;
+
+  /// Persists the playback speed chosen for [mediaId].
+  void setVideoSpeed(String mediaId, double value) =>
+      _prefs.setDouble('${PrefKeys.videoSpeedPrefix}$mediaId', value);
+
   String get defaultVideoFit =>
       _prefs.getString(PrefKeys.defaultVideoFit) ?? kDefaultVideoFit;
   set defaultVideoFit(String value) =>

@@ -55,6 +55,66 @@ class MediaRepository {
       (_db.select(_db.mediaItems)..where((t) => t.filePath.equals(filePath)))
           .getSingleOrNull();
 
+  /// Every non-hidden item whose enclosing folder is exactly [folderPath].
+  Future<List<MediaItem>> byFolder(String folderPath) {
+    final query = (_db.select(_db.mediaItems)
+      ..where(
+        (t) => t.folderPath.equals(folderPath) & t.isHidden.equals(false),
+      )
+      ..orderBy([(t) => OrderingTerm.asc(t.title)]));
+    return query.get();
+  }
+
+  /// Media rows whose path lives under [folderPathPrefix] (must end with a
+  /// path separator). Used when a folder is moved or deleted on disk.
+  Future<List<MediaItem>> byPathPrefix(String folderPathPrefix) {
+    return (_db.select(_db.mediaItems)
+            ..where((t) => t.filePath.like('$folderPathPrefix%')))
+        .get();
+  }
+
+  /// Rewrites the stored paths of every media row under [fromFolderPath] to the
+  /// matching location under [toFolderPath] (file path, folder path and any
+  /// embedded artwork paths). Row ids are preserved so playlists/play history
+  /// keep working after a move.
+  Future<void> remapPaths(String fromFolderPath, String toFolderPath) async {
+    final sep = fromFolderPath.contains('\\') ? '\\' : '/';
+    final oldRoot = fromFolderPath.endsWith(sep)
+        ? fromFolderPath
+        : '$fromFolderPath$sep';
+    final newRoot = toFolderPath.endsWith(sep) ? toFolderPath : '$toFolderPath$sep';
+
+    await _db.transaction(() async {
+      final rows = await byPathPrefix(oldRoot);
+      final now = DateTime.now().millisecondsSinceEpoch;
+      for (final row in rows) {
+        final relative = row.filePath.substring(oldRoot.length);
+        final newFilePath = '$newRoot$relative';
+        await (_db.update(_db.mediaItems)..where((t) => t.id.equals(row.id)))
+            .write(
+          MediaItemsCompanion(
+            filePath: Value(newFilePath),
+            folderPath: Value(_dirname(newFilePath)),
+            thumbnailPath: Value(_remap(row.thumbnailPath, oldRoot, newRoot)),
+            albumArtPath: Value(_remap(row.albumArtPath, oldRoot, newRoot)),
+            updatedAt: Value(now),
+          ),
+        );
+      }
+    });
+  }
+
+  static String _dirname(String filePath) {
+    final sep = filePath.contains('\\') ? '\\' : '/';
+    final index = filePath.lastIndexOf(sep);
+    return index <= 0 ? filePath : filePath.substring(0, index);
+  }
+
+  static String? _remap(String? path, String oldRoot, String newRoot) {
+    if (path == null || !path.startsWith(oldRoot)) return path;
+    return path.replaceFirst(oldRoot, newRoot);
+  }
+
   Future<void> upsert(MediaItemsCompanion entry) =>
       _db.into(_db.mediaItems).insertOnConflictUpdate(entry);
 

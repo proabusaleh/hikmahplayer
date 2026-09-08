@@ -43,20 +43,13 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
         children: [
           ListTile(
             title: const Text('Thumbnail cache'),
-            subtitle: Text(
-              '${Fmt.bytes(_thumbnailBytes)} of '
-              '${Fmt.bytes(StorageLocations.maxThumbnailCacheBytes)} used',
-            ),
+            subtitle: Text('${Fmt.bytes(_thumbnailBytes)} of ${Fmt.bytes(StorageLocations.maxThumbnailCacheBytes)} used'),
           ),
           ListTile(
             title: const Text('Clear temporary files'),
             subtitle: const Text('Session files are removed'),
             trailing: _clearing
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.delete_sweep_outlined),
             onTap: _clearing ? null : _clearTemp,
           ),
@@ -69,11 +62,8 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              'Cache is evicted least-recently-used when it exceeds the '
-              'limit. The database lives in app-private storage.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              'Cache is evicted least-recently-used when it exceeds the limit. The database lives in app-private storage.',
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
         ],

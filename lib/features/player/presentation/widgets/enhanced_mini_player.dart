@@ -27,9 +27,11 @@ class EnhancedMiniPlayer extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => media.type == MediaType.video
-                  ? EnhancedVideoPlayerScreen(mediaId: media.id)
-                  : const AudioPlayerScreen(),
+              builder:
+                  (_) =>
+                      media.type == MediaType.video
+                          ? EnhancedVideoPlayerScreen(mediaId: media.id)
+                          : AudioPlayerScreen(mediaId: media.id),
             ),
           );
         },
@@ -46,8 +48,7 @@ class EnhancedMiniPlayer extends ConsumerWidget {
 
             // ─── Content ───
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 children: [
                   // ─── Thumbnail ───
@@ -59,7 +60,9 @@ class EnhancedMiniPlayer extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
-                      media.type == MediaType.video ? Icons.movie : Icons.music_note,
+                      media.type == MediaType.video
+                          ? Icons.movie
+                          : Icons.music_note,
                       color: theme.colorScheme.onPrimaryContainer,
                     ),
                   ),
@@ -80,9 +83,7 @@ class EnhancedMiniPlayer extends ConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          media.artist ??
-                              media.album ??
-                              'Unknown',
+                          media.artist ?? media.album ?? 'Unknown',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -97,8 +98,7 @@ class EnhancedMiniPlayer extends ConsumerWidget {
                   IconButton(
                     icon: const Icon(Icons.skip_previous),
                     iconSize: 24,
-                    onPressed:
-                        state.hasPrevious ? controller.previous : null,
+                    onPressed: state.hasPrevious ? controller.previous : null,
                   ),
                   IconButton(
                     icon: Icon(

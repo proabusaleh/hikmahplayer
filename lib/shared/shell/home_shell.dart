@@ -7,8 +7,6 @@ import '../../core/theme/app_dimensions.dart';
 import '../../features/player/presentation/screens/mini_player.dart';
 import '../../presentation/providers/player_provider.dart';
 
-/// The redesigned app shell: a mini player pinned above a custom 3-tab
-/// bottom navigation (VIDEO / MUSIC / ME).
 class HomeShell extends ConsumerWidget {
   final Widget child;
 
@@ -29,43 +27,49 @@ class HomeShell extends ConsumerWidget {
           Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, -2),
+              border: Border(
+                top: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.15),
+                  width: 0.5,
                 ),
-              ],
+              ),
             ),
             child: SafeArea(
               top: false,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.xl,
+                  horizontal: AppDimensions.md,
                   vertical: AppDimensions.sm,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _NavTab(
+                      icon: Icons.home_outlined,
+                      activeIcon: Icons.home,
+                      label: 'Home',
+                      isActive: currentIndex == 0,
+                      onTap: () => context.go(RouteNames.home),
+                    ),
+                    _NavTab(
                       icon: Icons.movie_outlined,
                       activeIcon: Icons.movie,
-                      label: 'VIDEO',
-                      isActive: currentIndex == 0,
+                      label: 'Video',
+                      isActive: currentIndex == 1,
                       onTap: () => context.go(RouteNames.video),
                     ),
                     _NavTab(
                       icon: Icons.music_note_outlined,
                       activeIcon: Icons.music_note,
-                      label: 'MUSIC',
-                      isActive: currentIndex == 1,
+                      label: 'Music',
+                      isActive: currentIndex == 2,
                       onTap: () => context.go(RouteNames.music),
                     ),
                     _NavTab(
                       icon: Icons.person_outline,
                       activeIcon: Icons.person,
-                      label: 'ME',
-                      isActive: currentIndex == 2,
+                      label: 'Me',
+                      isActive: currentIndex == 3,
                       onTap: () => context.go(RouteNames.me),
                     ),
                   ],
@@ -80,13 +84,13 @@ class HomeShell extends ConsumerWidget {
 
   int _getCurrentIndex(BuildContext context) {
     final path = GoRouterState.of(context).uri.path;
-    if (path.startsWith(RouteNames.music)) return 1;
-    if (path.startsWith(RouteNames.me)) return 2;
-    return 0; // Video is default.
+    if (path.startsWith(RouteNames.video)) return 1;
+    if (path.startsWith(RouteNames.music)) return 2;
+    if (path.startsWith(RouteNames.me)) return 3;
+    return 0;
   }
 }
 
-/// Animated tab entry of the bottom navigation.
 class _NavTab extends StatelessWidget {
   final IconData icon;
   final IconData activeIcon;
@@ -106,18 +110,16 @@ class _NavTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final activeColor = theme.colorScheme.primary;
-    final inactiveColor = theme.colorScheme.onSurfaceVariant;
+    final inactiveColor = theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
 
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive
-              ? activeColor.withValues(alpha: 0.1)
-              : Colors.transparent,
+          color: isActive ? activeColor.withValues(alpha: 0.12) : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -125,7 +127,7 @@ class _NavTab extends StatelessWidget {
           children: [
             Icon(
               isActive ? activeIcon : icon,
-              size: 26,
+              size: 24,
               color: isActive ? activeColor : inactiveColor,
             ),
             const SizedBox(height: 4),
@@ -134,7 +136,7 @@ class _NavTab extends StatelessWidget {
               style: theme.textTheme.labelSmall?.copyWith(
                 color: isActive ? activeColor : inactiveColor,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                letterSpacing: 0.8,
+                letterSpacing: 0.4,
               ),
             ),
           ],

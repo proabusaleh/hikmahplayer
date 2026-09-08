@@ -12,6 +12,7 @@ import '../services/library_service.dart';
 import '../services/media_scan_service.dart';
 import '../services/metadata_service.dart';
 import '../services/playback_service.dart';
+import '../../services/player_service.dart';
 import '../services/privacy_service.dart';
 import '../services/subtitle_service.dart';
 import '../services/sync_service.dart';
@@ -20,6 +21,7 @@ import '../storage/prefs_service.dart';
 import '../storage/repositories/folder_repository.dart';
 import '../storage/repositories/history_repository.dart';
 import '../storage/repositories/media_repository.dart';
+import '../storage/repositories/player_data_repository.dart';
 import '../storage/repositories/playlist_repository.dart';
 import '../theme/theme_controller.dart';
 
@@ -67,6 +69,7 @@ class AppServices {
     playlists = PlaylistRepository(this.database);
     history = HistoryRepository(this.database);
     folders = FolderRepository(this.database);
+    playerData = PlayerDataRepository(this.database);
   }
 
   static Future<AppServices> create({
@@ -100,6 +103,9 @@ class AppServices {
   /// Folder index repository.
   late final FolderRepository folders;
 
+  /// Player-anchored user data: bookmarks, notes and user chapters.
+  late final PlayerDataRepository playerData;
+
   /// Unified media playback engine (media_kit / libmpv + FFmpeg).
   ///
   /// Created lazily so tests can assemble an [AppServices] around an
@@ -108,6 +114,15 @@ class AppServices {
 
   /// Injection slot backing [playback]; `null` uses the real engine.
   final PlaybackService? _playbackOverride;
+
+  /// Stream-oriented facade over the shared [playback] engine.
+  ///
+  /// Shares the same media_kit engine instance as the player UI so
+  /// notification / lock-screen controls (audio_service) always reflect
+  /// what is actually playing without spinning up a second engine.
+  /// Created lazily so tests that never start background audio avoid
+  /// constructing the extra engine wrapper.
+  late final PlayerService playerService = PlayerService(playback: playback);
 
   /// Media library: folder scanning, indexing, tags, collections.
   final LibraryService library;

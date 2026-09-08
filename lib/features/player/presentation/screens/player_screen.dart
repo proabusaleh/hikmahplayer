@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/di/app_scope.dart';
-import '../../../../core/services/playback_service.dart';
 import '../../domain/models/media_item.dart';
 import '../../domain/models/playback_queue.dart';
 import '../providers/playback_provider.dart';
@@ -12,16 +11,9 @@ import '../widgets/gesture_detector.dart';
 import '../widgets/pip_player.dart';
 import '../widgets/video_output.dart';
 
-/// Full-screen playback screen.
-///
-/// Creates a [PlaybackController] bound to the shared [PlaybackService]. When a
-/// [queue] is provided it becomes the active playback queue; otherwise the
-/// currently loaded media keeps playing (e.g. when opened from the mini
-/// player).
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key, this.queue});
 
-  /// Optional queue to start playing; `null` continues current playback.
   final PlaybackQueue? queue;
 
   @override
@@ -44,7 +36,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
     super.didChangeDependencies();
     if (_controller == null) {
       final services = AppScope.of(context);
-      _controller = PlaybackController(services.playback, services.subtitle);
+      _controller = PlaybackController(
+        services.playback,
+        services.subtitle,
+        repository: services.playerData,
+        history: services.history,
+        prefs: services.prefs,
+      );
     }
     final queue = widget.queue;
     if (queue != null && !_opened && _controller != null) {
@@ -110,7 +108,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFF1A1030), Color(0xFF10121A), Color(0xFF0A0C12)],
+              colors: [Color(0xFF0B0B0B), Color(0xFF121212), Color(0xFF0B0B0B)],
             ),
           ),
           child: Stack(
@@ -125,8 +123,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               if (item != null)
                 Center(
                   child: item.artworkUri == null
-                      ? const Icon(Icons.music_note,
-                          size: 96, color: Colors.white24)
+                      ? Icon(Icons.music_note_rounded, size: 96, color: Colors.white.withValues(alpha: 0.15))
                       : ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: Image.network(
@@ -134,8 +131,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                             width: 200,
                             height: 200,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => const Icon(Icons.music_note,
-                                size: 96, color: Colors.white24),
+                            errorBuilder: (_, _, _) => Icon(Icons.music_note_rounded, size: 96, color: Colors.white.withValues(alpha: 0.15)),
                           ),
                         ),
                 ),
@@ -159,7 +155,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             children: [
               IconButton(
                 tooltip: 'Back',
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
                 onPressed: () => Navigator.maybePop(context),
               ),
               Expanded(
@@ -171,26 +167,26 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       item?.title ?? 'No media',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white),
                     ),
                     if (item != null && item.type == MediaType.audio)
                       Text(
                         [item.artist, item.album].whereType<String>().join(' — '),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
                       ),
                   ],
                 ),
               ),
               IconButton(
                 tooltip: 'Picture in picture',
-                icon: Icon(_pip ? Icons.picture_in_picture_alt : Icons.picture_in_picture),
+                icon: Icon(_pip ? Icons.picture_in_picture_alt_rounded : Icons.picture_in_picture_rounded, color: Colors.white),
                 onPressed: () => setState(() => _pip = !_pip),
               ),
               IconButton(
                 tooltip: 'Close player',
-                icon: const Icon(Icons.close),
+                icon: const Icon(Icons.close_rounded, color: Colors.white),
                 onPressed: () => Navigator.maybePop(context),
               ),
             ],
@@ -254,7 +250,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 }
 
-/// Gives the subtitle renderer its own horizontal room above the controls.
 class SubtitleSpace extends StatelessWidget {
   const SubtitleSpace({super.key, required this.controller});
 

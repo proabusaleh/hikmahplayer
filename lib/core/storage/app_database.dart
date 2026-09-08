@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
+
+import 'database_connection.dart';
 
 part 'app_database.g.dart';
 
@@ -50,12 +47,14 @@ class MediaItems extends Table {
   BoolColumn get isHidden =>
       boolean().named('is_hidden').withDefault(const Constant(false))();
 
-  IntColumn get createdAt => integer().named('created_at').clientDefault(
-        () => DateTime.now().millisecondsSinceEpoch,
-      )();
-  IntColumn get updatedAt => integer().named('updated_at').clientDefault(
-        () => DateTime.now().millisecondsSinceEpoch,
-      )();
+  IntColumn get createdAt =>
+      integer()
+          .named('created_at')
+          .clientDefault(() => DateTime.now().millisecondsSinceEpoch)();
+  IntColumn get updatedAt =>
+      integer()
+          .named('updated_at')
+          .clientDefault(() => DateTime.now().millisecondsSinceEpoch)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -73,12 +72,14 @@ class Playlists extends Table {
       integer().named('total_duration').withDefault(const Constant(0))();
   BoolColumn get isAuto =>
       boolean().named('is_auto').withDefault(const Constant(false))();
-  IntColumn get createdAt => integer().named('created_at').clientDefault(
-        () => DateTime.now().millisecondsSinceEpoch,
-      )();
-  IntColumn get updatedAt => integer().named('updated_at').clientDefault(
-        () => DateTime.now().millisecondsSinceEpoch,
-      )();
+  IntColumn get createdAt =>
+      integer()
+          .named('created_at')
+          .clientDefault(() => DateTime.now().millisecondsSinceEpoch)();
+  IntColumn get updatedAt =>
+      integer()
+          .named('updated_at')
+          .clientDefault(() => DateTime.now().millisecondsSinceEpoch)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -118,53 +119,130 @@ class Folders extends Table {
   TextColumn get id => text()();
   TextColumn get path => text().unique()();
   TextColumn get name => text()();
+  TextColumn get parentPath => text().named('parent_path').nullable()();
+
   IntColumn get mediaCount =>
       integer().named('media_count').withDefault(const Constant(0))();
+  IntColumn get videoCount =>
+      integer().named('video_count').withDefault(const Constant(0))();
+  IntColumn get musicCount =>
+      integer().named('music_count').withDefault(const Constant(0))();
+  IntColumn get totalSizeBytes =>
+      integer().named('total_size_bytes').withDefault(const Constant(0))();
+  TextColumn get thumbnailPath => text().named('thumbnail_path').nullable()();
+
   BoolColumn get isHidden =>
       boolean().named('is_hidden').withDefault(const Constant(false))();
+  BoolColumn get isExcluded =>
+      boolean().named('is_excluded').withDefault(const Constant(false))();
+  BoolColumn get isProtected =>
+      boolean().named('is_protected').withDefault(const Constant(false))();
   BoolColumn get isPinned =>
       boolean().named('is_pinned').withDefault(const Constant(false))();
+  BoolColumn get isWatched =>
+      boolean().named('is_watched').withDefault(const Constant(true))();
+
   IntColumn get sortOrder =>
       integer().named('sort_order').withDefault(const Constant(0))();
   IntColumn get lastScanned => integer().named('last_scanned').nullable()();
-  IntColumn get createdAt => integer().named('created_at').clientDefault(
-        () => DateTime.now().millisecondsSinceEpoch,
-      )();
+  IntColumn get createdAt =>
+      integer()
+          .named('created_at')
+          .clientDefault(() => DateTime.now().millisecondsSinceEpoch)();
+  IntColumn get updatedAt => integer().named('updated_at').nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [
-  MediaItems,
-  Playlists,
-  PlaylistItems,
-  PlayHistory,
-  Folders,
-])
+@TableIndex(name: 'idx_bookmark_entries_media', columns: {#mediaId})
+class BookmarkEntries extends Table {
+  TextColumn get id => text()();
+  TextColumn get mediaId => text().named('media_id')();
+  TextColumn get label => text()();
+  TextColumn get note => text().nullable()();
+  IntColumn get positionMs => integer().named('position_ms')();
+  IntColumn get colorValue =>
+      integer().named('color_value').withDefault(const Constant(0xFFF4B740))();
+  IntColumn get createdAt => integer().named('created_at')();
+  IntColumn get updatedAt => integer().named('updated_at')();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@TableIndex(name: 'idx_note_entries_media', columns: {#mediaId})
+class NoteEntries extends Table {
+  TextColumn get id => text()();
+  TextColumn get mediaId => text().named('media_id')();
+  TextColumn get title => text().nullable()();
+  TextColumn get body => text()();
+  IntColumn get positionMs => integer().named('position_ms')();
+  IntColumn get createdAt => integer().named('created_at')();
+  IntColumn get updatedAt => integer().named('updated_at')();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@TableIndex(name: 'idx_chapter_entries_media', columns: {#mediaId})
+class ChapterEntries extends Table {
+  TextColumn get id => text()();
+  TextColumn get mediaId => text().named('media_id')();
+  TextColumn get title => text()();
+  IntColumn get startMs => integer().named('start_ms')();
+  IntColumn get endMs => integer().named('end_ms').nullable()();
+  IntColumn get createdAt => integer().named('created_at')();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(
+  tables: [
+    MediaItems,
+    Playlists,
+    PlaylistItems,
+    PlayHistory,
+    Folders,
+    BookmarkEntries,
+    NoteEntries,
+    ChapterEntries,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_open());
+  AppDatabase() : super(openDatabaseConnection());
 
   AppDatabase.forTesting(super.connection);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) => m.createAll(),
-        beforeOpen: (details) async {
-          await customStatement('PRAGMA foreign_keys = ON');
-          await customStatement('PRAGMA journal_mode = WAL');
-          await customStatement('PRAGMA synchronous = NORMAL');
-        },
-      );
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(folders, folders.parentPath);
+        await m.addColumn(folders, folders.videoCount);
+        await m.addColumn(folders, folders.musicCount);
+        await m.addColumn(folders, folders.totalSizeBytes);
+        await m.addColumn(folders, folders.thumbnailPath);
+        await m.addColumn(folders, folders.isExcluded);
+        await m.addColumn(folders, folders.isProtected);
+        await m.addColumn(folders, folders.isWatched);
+        await m.addColumn(folders, folders.updatedAt);
+      }
+      if (from < 3) {
+        await m.createTable(bookmarkEntries);
+        await m.createTable(noteEntries);
+        await m.createTable(chapterEntries);
+      }
+    },
+    beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
+      await customStatement('PRAGMA journal_mode = WAL');
+      await customStatement('PRAGMA synchronous = NORMAL');
+    },
+  );
 }
-
-LazyDatabase _open() => LazyDatabase(() async {
-      final dir = await getApplicationSupportDirectory();
-      final dbFolder = p.join(dir.path, 'database');
-      await Directory(dbFolder).create(recursive: true);
-      final file = p.join(dbFolder, 'hikmah_player.db');
-      return NativeDatabase.createInBackground(File(file));
-    });

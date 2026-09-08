@@ -248,6 +248,24 @@ class PlaybackService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Moves the item at index [from] to [to] within the current queue.
+  ///
+  /// Both indices refer to positions within the queue after the move completes.
+  Future<void> reorderQueue(int from, int to) async {
+    if (from < 0 || from >= _queueItems.length) return;
+    if (to < 0 || to >= _queueItems.length) return;
+    if (from == to) return;
+    await _engine.move(from, to);
+    final item = _queueItems.removeAt(from);
+    _queueItems.insert(to, item);
+    queue.value = PlaybackQueue(
+      items: List.of(_queueItems),
+      currentIndex: currentIndex.value,
+      shuffle: shuffleEnabled.value,
+    );
+    notifyListeners();
+  }
+
   /// Clears the current queue and stops playback.
   Future<void> clearQueue() async {
     _queueItems.clear();

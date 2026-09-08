@@ -48,6 +48,20 @@ final mediaItemsStreamProvider = StreamProvider<List<MediaItem>>((ref) {
   return ref.watch(appServicesProvider).media.watchAll();
 });
 
+/// Current audio rows, derived from the shared database stream.
+final audioListProvider = Provider<List<MediaItem>>(
+  (ref) => (ref.watch(mediaItemsStreamProvider).valueOrNull ?? const [])
+      .where((item) => item.mediaType == HikmahMediaType.audio.value)
+      .toList(growable: false),
+);
+
+/// Current video rows, derived from the shared database stream.
+final videosListProvider = Provider<List<MediaItem>>(
+  (ref) => (ref.watch(mediaItemsStreamProvider).valueOrNull ?? const [])
+      .where((item) => item.mediaType == HikmahMediaType.video.value)
+      .toList(growable: false),
+);
+
 /// Display state of the library list: filtered/sorted/paginated view of
 /// [mediaItemsStreamProvider].
 class MediaListState {
@@ -156,12 +170,13 @@ class MediaList extends Notifier<MediaListState> {
     if (_folderPath != null && row.folderPath != _folderPath) return false;
     final query = _query?.toLowerCase();
     if (query != null && query.isNotEmpty) {
-      final haystack = [
-        row.title ?? '',
-        row.fileName,
-        row.artist ?? '',
-        row.album ?? '',
-      ].join(' ').toLowerCase();
+      final haystack =
+          [
+            row.title ?? '',
+            row.fileName,
+            row.artist ?? '',
+            row.album ?? '',
+          ].join(' ').toLowerCase();
       if (!haystack.contains(query)) return false;
     }
     return true;
@@ -178,11 +193,10 @@ class MediaList extends Notifier<MediaListState> {
   }
 
   static String _text(MediaItem row) =>
-      (row.title != null && row.title!.isNotEmpty
-              ? row.title!
-              : row.fileName)
+      (row.title != null && row.title!.isNotEmpty ? row.title! : row.fileName)
           .toLowerCase();
 }
 
-final mediaListProvider =
-    NotifierProvider<MediaList, MediaListState>(MediaList.new);
+final mediaListProvider = NotifierProvider<MediaList, MediaListState>(
+  MediaList.new,
+);

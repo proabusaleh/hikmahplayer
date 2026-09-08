@@ -8,13 +8,13 @@ abstract final class AppCardTheme {
   static CardThemeData dark(ColorScheme scheme) => _build(scheme);
 
   static CardThemeData _build(ColorScheme scheme) => CardThemeData(
-        color: scheme.surfaceContainerLow,
+        color: scheme.surfaceContainerHigh,
         elevation: 0,
         margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusCard),
-          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.4)),
+          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.25)),
         ),
       );
 }

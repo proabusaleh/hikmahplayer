@@ -26,10 +26,13 @@ abstract final class RouteNames {
   static const String search = '/search';
   static const String favorites = '/favorites';
   static const String history = '/history';
+  static const String folderManager = '/folder-manager';
   static const String settings = '/settings';
   static const String settingsTheme = '/settings/theme';
   static const String settingsPlayback = '/settings/playback';
   static const String settingsStorage = '/settings/storage';
+  static const String settingsStatistics = '/settings/statistics';
+  static const String settingsStorageManager = '/settings/storage-manager';
   static const String settingsAbout = '/settings/about';
 
   // ─── Players ───

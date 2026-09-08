@@ -25,6 +25,8 @@ class _PermissionScreenState extends State<PermissionScreen>
   late final AnimationController _illustrationController;
   bool _requesting = false;
   bool _allGranted = false;
+  bool _askAllFiles = false;
+  bool _allFilesGranted = false;
   final Map<String, bool> _statuses = {};
 
   @override
@@ -47,6 +49,13 @@ class _PermissionScreenState extends State<PermissionScreen>
     final permissionsToRequest = await _mediaPermissionsToRequest();
     final granted = <Permission>{};
 
+    // "All files access" (SD / USB / OTG) is an optional extra on Android 11+;
+    // the scanner falls back to MediaStore when it is not granted.
+    _askAllFiles = Platform.isAndroid && await MediaScanner.sdkInt() >= 30;
+    if (_askAllFiles) {
+      _allFilesGranted = await Permission.manageExternalStorage.isGranted;
+    }
+
     for (final permission in permissionsToRequest) {
       if ((await permission.status).isGranted) {
         granted.add(permission);
@@ -59,6 +68,7 @@ class _PermissionScreenState extends State<PermissionScreen>
       _statuses['Photos'] = result.photos;
       _statuses['Videos'] = result.videos;
       _statuses['Audio'] = result.audio;
+      _statuses['All Files'] = _allFilesGranted;
       _allGranted = result.allGranted;
     });
 
@@ -116,12 +126,27 @@ class _PermissionScreenState extends State<PermissionScreen>
         }
       }
 
+      // Optional: prompt for "All files access" so SD / USB / OTG volumes are
+      // scanned directly. Non-blocking — MediaStore fallback still applies.
+      _askAllFiles = Platform.isAndroid && await MediaScanner.sdkInt() >= 30;
+      if (_askAllFiles) {
+        try {
+          final status = await Permission.manageExternalStorage.request()
+              .timeout(const Duration(seconds: 10));
+          _allFilesGranted = status.isGranted;
+        } catch (error) {
+          debugPrint('PermissionScreen: all-files request failed: $error');
+          _allFilesGranted = false;
+        }
+      }
+
       final result = _interpretGranted(permissionsToRequest, granted);
       setState(() {
         _statuses['Storage'] = result.storage;
         _statuses['Photos'] = result.photos;
         _statuses['Videos'] = result.videos;
         _statuses['Audio'] = result.audio;
+        _statuses['All Files'] = _allFilesGranted;
         _allGranted = result.allGranted;
       });
 
@@ -245,6 +270,16 @@ class _PermissionScreenState extends State<PermissionScreen>
                       granted: _statuses['Audio'] ?? false,
                       delay: 800,
                     ),
+                    if (_askAllFiles) ...[
+                      const SizedBox(height: 8),
+                      _PermissionCard(
+                        icon: Icons.usb,
+                        title: 'All files (SD / USB / OTG)',
+                        subtitle: 'Scan media on memory cards & connected drives',
+                        granted: _statuses['All Files'] ?? false,
+                        delay: 900,
+                      ),
+                    ],
                   ],
                 ),
               ),

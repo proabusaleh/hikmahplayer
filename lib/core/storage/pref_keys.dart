@@ -29,4 +29,9 @@ abstract final class PrefKeys {
 
   static const String hiddenFolders = 'hidden_folders';
   static const String incognitoMode = 'incognito_mode';
+
+  static const String rememberVideoSpeed = 'remember_video_speed';
+  static const String seekStepSeconds = 'seek_step_seconds';
+  static const String videoOrientation = 'video_orientation';
+  static const String videoSpeedPrefix = 'video_speed_';
 }

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../features/player/domain/models/media_item.dart';
+import '../../core/storage/repositories/media_repository.dart';
 import 'media_provider.dart';
 
 enum MusicTab { songs, albums, artists }

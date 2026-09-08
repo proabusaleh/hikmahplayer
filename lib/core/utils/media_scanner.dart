@@ -146,28 +146,30 @@ class MediaScanner {
     }
   }
 
-  /// Requests the runtime media permissions the scanner needs.
+  /// Requests the runtime permissions the scanner needs.
   ///
   /// On Android 13+ this maps to READ_MEDIA_VIDEO / READ_MEDIA_AUDIO (and
   /// photos); permission_handler maps the same requests to
-  /// READ_EXTERNAL_STORAGE on older versions. Returns whether at least the
-  /// video or audio permission was granted (the scan works with either).
+  /// READ_EXTERNAL_STORAGE on older versions. On Android 11+ it also asks for
+  /// "All files access" ([Permission.manageExternalStorage]) so removable
+  /// volumes (SD card, USB-OTG) become readable directly — that request opens
+  /// the system settings page and counts as granted only if the user confirms.
+  ///
+  /// Returns whether at least one scan-capable grant was obtained: video,
+  /// audio, or all-files access.
   static Future<bool> requestStoragePermission() async {
     if (!Platform.isAndroid) return false;
     try {
       final level = await sdkInt();
-      if (level >= 33) {
-        final statuses = await [
-          Permission.videos,
-          Permission.audio,
-          Permission.photos,
-        ].request();
-        return (statuses[Permission.videos]?.isGranted ?? false) ||
-            (statuses[Permission.audio]?.isGranted ?? false);
-      } else {
-        final status = await Permission.storage.request();
-        return status.isGranted;
-      }
+      final results = await [
+        if (level >= 33) ...[Permission.videos, Permission.audio, Permission.photos],
+        if (level >= 30) Permission.manageExternalStorage,
+        if (level < 33) Permission.storage,
+      ].request();
+      return (results[Permission.videos]?.isGranted ?? false) ||
+          (results[Permission.audio]?.isGranted ?? false) ||
+          (results[Permission.manageExternalStorage]?.isGranted ?? false) ||
+          (results[Permission.storage]?.isGranted ?? false);
     } catch (error) {
       debugPrint('MediaScanner: permission request failed: $error');
       return false;
@@ -187,6 +189,32 @@ class MediaScanner {
     } catch (error) {
       debugPrint('MediaScanner: sdkInt failed: $error');
       return 0;
+    }
+  }
+
+  /// Whether "All files access" (`MANAGE_EXTERNAL_STORAGE`, Android 11+) is
+  /// granted. With it, the scanner enumerates every mounted volume directly —
+  /// SD cards, USB-OTG drives and other removable storage — instead of only
+  /// what MediaStore indexes. `false` on Android ≤ 10 and non-Android hosts.
+  static Future<bool> hasAllFilesAccess() async {
+    if (!Platform.isAndroid) return false;
+    try {
+      return await _scanChannel.invokeMethod<bool>('allFilesAccess') ?? false;
+    } catch (error) {
+      debugPrint('MediaScanner: allFilesAccess failed: $error');
+      return false;
+    }
+  }
+
+  /// Opens the system "All files access" settings page (Android 11+) so the
+  /// user can let the scanner read SD / USB / OTG storage. Best-effort; the
+  /// scan falls back to MediaStore when the grant is refused.
+  static Future<void> requestAllFilesAccess() async {
+    if (!Platform.isAndroid) return;
+    try {
+      await _scanChannel.invokeMethod<void>('requestAllFilesAccess');
+    } catch (error) {
+      debugPrint('MediaScanner: requestAllFilesAccess failed: $error');
     }
   }
 

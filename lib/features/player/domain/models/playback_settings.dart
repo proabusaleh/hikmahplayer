@@ -1,6 +1,25 @@
 /// How the queue behaves once the end of an item (or the queue) is reached.
 enum RepeatMode { off, all, one }
 
+/// Preferred orientation of the enhanced video player.
+///
+/// [auto] follows the video's aspect ratio (landscape for wide videos,
+/// portrait otherwise), while the explicit modes force a fixed orientation.
+enum VideoOrientation {
+  auto,
+  landscape,
+  portrait;
+
+  String get label => switch (this) {
+        VideoOrientation.auto => 'Auto',
+        VideoOrientation.landscape => 'Landscape',
+        VideoOrientation.portrait => 'Portrait',
+      };
+
+  static VideoOrientation fromName(String? name) =>
+      VideoOrientation.values.asNameMap()[name] ?? VideoOrientation.auto;
+}
+
 /// Serializable playback preferences.
 ///
 /// These values are applied whenever a new item/queue starts and are

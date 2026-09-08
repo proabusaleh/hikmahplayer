@@ -13,8 +13,12 @@ import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/settings/presentation/screens/storage_settings_screen.dart';
 import '../../features/settings/presentation/screens/theme_settings_screen.dart';
 import '../../features/splash/presentation/screens/scanning_screen.dart';
+import '../../features/analytics/presentation/screens/statistics_screen.dart';
+import '../../features/storage/presentation/screens/storage_manager_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
+import '../../presentation/screens/home/folders/folder_manager_screen.dart';
 import '../../presentation/screens/home/me/me_tab.dart';
+import '../../presentation/screens/home/home_tab.dart';
 import '../../presentation/screens/home/music/music_tab.dart';
 import '../../presentation/screens/home/video/video_tab.dart';
 import '../../shared/shell/home_shell.dart';
@@ -36,7 +40,7 @@ GoRouter createAppRouter({required PrefsService prefs}) {
         return RouteNames.splash;
       }
       if (onboarded && location == RouteNames.onboarding) {
-        return RouteNames.video;
+        return RouteNames.home;
       }
       return null;
     },
@@ -44,72 +48,84 @@ GoRouter createAppRouter({required PrefsService prefs}) {
       // ─── Splash & onboarding ───
       GoRoute(
         path: RouteNames.splash,
-        builder: (_, __) => const SplashScreen(),
+        builder: (_, _) => const SplashScreen(),
       ),
       GoRoute(
         path: RouteNames.onboarding,
-        builder: (_, __) => const OnboardingScreen(),
+        builder: (_, _) => const OnboardingScreen(),
       ),
       GoRoute(
         path: '/scanning',
-        builder: (_, __) => const ScanningScreen(),
+        builder: (_, _) => const ScanningScreen(),
       ),
 
-      // ─── Home shell (3 tabs) ───
+      // ─── Home shell (4 tabs) ───
       ShellRoute(
         builder: (context, state, child) => HomeShell(child: child),
         routes: [
           GoRoute(
+            path: RouteNames.home,
+            pageBuilder: (_, _) => const NoTransitionPage(child: HomeTab()),
+          ),
+          GoRoute(
             path: RouteNames.video,
-            pageBuilder: (_, __) => const NoTransitionPage(child: VideoTab()),
+            pageBuilder: (_, _) => const NoTransitionPage(child: VideoTab()),
           ),
           GoRoute(
             path: RouteNames.music,
-            pageBuilder: (_, __) => const NoTransitionPage(child: MusicTab()),
+            pageBuilder: (_, _) => const NoTransitionPage(child: MusicTab()),
           ),
           GoRoute(
             path: RouteNames.me,
-            pageBuilder: (_, __) => const NoTransitionPage(child: MeTab()),
+            pageBuilder: (_, _) => const NoTransitionPage(child: MeTab()),
           ),
         ],
-      ),
-      GoRoute(
-        path: RouteNames.home,
-        redirect: (_, __) => RouteNames.video,
       ),
 
       // ─── Overlay screens ───
       GoRoute(
         path: RouteNames.search,
-        builder: (_, __) => const SearchScreen(),
+        builder: (_, _) => const SearchScreen(),
       ),
       GoRoute(
         path: RouteNames.favorites,
-        builder: (_, __) => const FavoritesScreen(),
+        builder: (_, _) => const FavoritesScreen(),
       ),
       GoRoute(
         path: RouteNames.history,
-        builder: (_, __) => const HistoryScreen(),
+        builder: (_, _) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.folderManager,
+        builder: (_, _) => const FolderManagerScreen(),
       ),
       GoRoute(
         path: RouteNames.settings,
-        builder: (_, __) => const SettingsScreen(),
+        builder: (_, _) => const SettingsScreen(),
         routes: [
           GoRoute(
             path: 'theme',
-            builder: (_, __) => const ThemeSettingsScreen(),
+            builder: (_, _) => const ThemeSettingsScreen(),
           ),
           GoRoute(
             path: 'playback',
-            builder: (_, __) => const PlaybackSettingsScreen(),
+            builder: (_, _) => const PlaybackSettingsScreen(),
           ),
           GoRoute(
             path: 'storage',
-            builder: (_, __) => const StorageSettingsScreen(),
+            builder: (_, _) => const StorageSettingsScreen(),
+          ),
+          GoRoute(
+            path: 'statistics',
+            builder: (_, _) => const StatisticsScreen(),
+          ),
+          GoRoute(
+            path: 'storage-manager',
+            builder: (_, _) => const StorageManagerScreen(),
           ),
           GoRoute(
             path: 'about',
-            builder: (_, __) => const AboutScreen(),
+            builder: (_, _) => const AboutScreen(),
           ),
         ],
       ),

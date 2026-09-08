@@ -197,10 +197,10 @@ void main() {
     test('tampered blob is rejected', () {
       final service = PrivacyService();
       final exported = service.exportAllData(password: 'pw');
+      final first = exported.blob.substring(0, 1);
+      final replacement = first == 'A' ? 'B' : 'A';
       final tampered =
-          (exported.blob.substring(0, 10) == 'AAA') == false
-              ? 'B${exported.blob.substring(1)}'
-              : exported.blob;
+          '$replacement${exported.blob.substring(1)}';
       final fresh = PrivacyService();
       final result = fresh.importAllData(tampered, password: 'pw');
       expect(result.success, isFalse);

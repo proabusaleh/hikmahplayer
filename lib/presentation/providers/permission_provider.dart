@@ -27,14 +27,20 @@ class PermissionController extends Notifier<PermissionStatusState> {
   Future<void> requestStoragePermission() async {
     final permissions = await _getPermissionsToRequest();
     final statuses = await permissions.request();
-    
+
+    // "All files access" (SD / USB / OTG) is optional: the scanner falls back
+    // to MediaStore without it, so it never blocks the flow.
+    final blocking = permissions
+        .where((p) => p != Permission.manageExternalStorage)
+        .toList();
     bool allGranted = true;
     bool permanentlyDenied = false;
 
-    for (final status in statuses.values) {
-      if (!status.isGranted) {
+    for (final permission in blocking) {
+      final status = statuses[permission];
+      if (status == null || !status.isGranted) {
         allGranted = false;
-        if (status.isPermanentlyDenied) {
+        if (status?.isPermanentlyDenied ?? false) {
           permanentlyDenied = true;
         }
       }
@@ -49,10 +55,13 @@ class PermissionController extends Notifier<PermissionStatusState> {
 
   Future<void> checkStatus() async {
     final permissions = await _getPermissionsToRequest();
+    final blocking = permissions
+        .where((p) => p != Permission.manageExternalStorage)
+        .toList();
     bool allGranted = true;
     bool permanentlyDenied = false;
 
-    for (final permission in permissions) {
+    for (final permission in blocking) {
       final status = await permission.status;
       if (!status.isGranted) {
         allGranted = false;
@@ -77,14 +86,17 @@ class PermissionController extends Notifier<PermissionStatusState> {
     if (!Platform.isAndroid) {
       return [Permission.storage];
     }
-    
+
     final sdkInt = await MediaScanner.sdkInt();
     if (sdkInt >= 33) {
       return [
         Permission.photos,
         Permission.videos,
         Permission.audio,
+        if (sdkInt >= 30) Permission.manageExternalStorage,
       ];
+    } else if (sdkInt >= 30) {
+      return [Permission.storage, Permission.manageExternalStorage];
     } else {
       return [Permission.storage];
     }

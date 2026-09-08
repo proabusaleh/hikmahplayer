@@ -43,9 +43,9 @@ class AppTheme {
         surface: const Color(0xFF000000),
         surfaceContainerLowest: const Color(0xFF000000),
         surfaceContainerLow: const Color(0xFF0A0A0A),
-        surfaceContainer: const Color(0xFF121212),
-        surfaceContainerHigh: const Color(0xFF1A1A1A),
-        surfaceContainerHighest: const Color(0xFF222222),
+        surfaceContainer: const Color(0xFF0B0B0B),
+        surfaceContainerHigh: const Color(0xFF121212),
+        surfaceContainerHighest: const Color(0xFF181818),
       );
     }
 
