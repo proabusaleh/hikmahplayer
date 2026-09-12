@@ -103,7 +103,13 @@ class MediaScanService {
     List<String> errors,
   ) async {
     try {
-      await media.upsert(companionFromScanned(item, type: type));
+      final existing = await media.byPath(item.uri);
+      final companion = companionFromScanned(
+        item,
+        type: type,
+        existing: existing,
+      );
+      await media.upsert(companion);
       return true;
     } catch (error, stackTrace) {
       errors.add('${item.uri}: $error');
@@ -118,8 +124,10 @@ class MediaScanService {
   static MediaItemsCompanion companionFromScanned(
     ScannedMedia item, {
     required HikmahMediaType type,
+    MediaItem? existing,
   }) {
     final now = DateTime.now();
+    final isNew = existing == null;
     return MediaItemsCompanion(
       id: Value(stableId(item.uri)),
       filePath: Value(item.uri),
@@ -142,8 +150,13 @@ class MediaScanService {
       folderName: Value(item.folderName?.isNotEmpty == true
           ? item.folderName!
           : item.folderPath),
-      dateAdded: Value((item.dateAdded ?? now).millisecondsSinceEpoch),
+      dateAdded: isNew
+          ? Value((item.dateAdded ?? now).millisecondsSinceEpoch)
+          : Value(existing.dateAdded),
       dateModified: Value(item.dateModified?.millisecondsSinceEpoch),
+      lastPlayed: isNew ? const Value.absent() : Value(existing.lastPlayed),
+      playCount: isNew ? const Value.absent() : Value(existing.playCount),
+      lastPosition: isNew ? const Value.absent() : Value(existing.lastPosition),
       updatedAt: Value(now.millisecondsSinceEpoch),
     );
   }

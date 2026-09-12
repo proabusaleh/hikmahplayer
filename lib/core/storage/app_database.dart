@@ -8,6 +8,7 @@ part 'app_database.g.dart';
 @TableIndex(name: 'idx_media_folder', columns: {#folderPath})
 @TableIndex(name: 'idx_media_favorite', columns: {#isFavorite})
 @TableIndex(name: 'idx_media_last_played', columns: {#lastPlayed})
+@TableIndex(name: 'idx_media_date_added', columns: {#dateAdded})
 class MediaItems extends Table {
   TextColumn get id => text()();
   TextColumn get filePath => text().named('file_path').unique()();

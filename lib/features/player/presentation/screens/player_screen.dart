@@ -41,6 +41,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         services.subtitle,
         repository: services.playerData,
         history: services.history,
+        media: services.media,
         prefs: services.prefs,
       );
     }

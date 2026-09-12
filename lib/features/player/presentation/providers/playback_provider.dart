@@ -7,6 +7,8 @@ import '../../../../core/services/playback_service.dart';
 import '../../../../core/services/subtitle_service.dart';
 import '../../../../core/storage/prefs_service.dart';
 import '../../../../core/storage/repositories/history_repository.dart';
+import '../../../../core/storage/repositories/media_repository.dart'
+    hide MediaItem;
 import '../../../../core/storage/repositories/player_data_repository.dart';
 import '../../domain/models/bookmark.dart';
 import '../../domain/models/media_item.dart';
@@ -41,16 +43,19 @@ class PlaybackController extends ChangeNotifier {
     this._subtitleService, {
     PlayerDataRepository? repository,
     HistoryRepository? history,
+    MediaRepository? media,
     PrefsService? prefs,
   }) {
     _repo = repository;
     _history = history;
+    _media = media;
     _prefs = prefs;
     _positionListener = () {
       _maybeRotateSession();
       _maybeLoop();
       _maybeEndOfMediaSleep();
       _maybeNotify();
+      _maybeSavePosition();
     };
     _playback.position.addListener(_positionListener!);
     _playback.isCompleted.addListener(_maybeEndOfMediaSleep);
@@ -60,30 +65,34 @@ class PlaybackController extends ChangeNotifier {
   final SubtitleService _subtitleService;
   PlayerDataRepository? _repo;
   HistoryRepository? _history;
+  MediaRepository? _media;
   PrefsService? _prefs;
   VoidCallback? _positionListener;
 
-  /// Id of the media row currently open in the player.
   String? _mediaId;
   String? get currentMediaId => _mediaId;
 
-  // Session tracking for local analytics (respects incognito mode).
   String? _sessionMediaId;
   Duration _sessionStart = Duration.zero;
+  DateTime? _lastPositionSave;
+  static const _positionSaveInterval = Duration(seconds: 30);
 
   void _beginSession(String mediaId) {
     _sessionMediaId = mediaId;
     _sessionStart = _playback.position.value;
+    _lastPositionSave = DateTime.now();
   }
 
-  /// Records the finished watch session into local history when the player is
-  /// used normally and history recording is enabled.
   void _recordSession() {
     final mediaId = _sessionMediaId;
     if (mediaId == null) return;
     _sessionMediaId = null;
-    final repo = _history;
-    if (repo == null || _prefs?.incognitoMode == true) return;
+    final history = _history;
+    final media = _media;
+    if (_prefs?.incognitoMode == true) {
+      _savePosition(mediaId, _playback.position.value);
+      return;
+    }
     final watchedMs =
         (_playback.position.value - _sessionStart).inMilliseconds.clamp(
           0,
@@ -93,14 +102,37 @@ class PlaybackController extends ChangeNotifier {
     final total = _playback.duration.value;
     final completed =
         total > Duration.zero && watchedMs >= total.inMilliseconds * 0.9;
-    unawaited(
-      repo.record(
-        id: _sessionUuid.v4(),
-        mediaId: mediaId,
-        durationPlayedMs: watchedMs,
-        completed: completed,
-      ),
-    );
+    if (history != null) {
+      unawaited(
+        history.record(
+          id: _sessionUuid.v4(),
+          mediaId: mediaId,
+          durationPlayedMs: watchedMs,
+          completed: completed,
+        ),
+      );
+    }
+    if (media != null) {
+      unawaited(media.recordPlayback(mediaId, playedMs: watchedMs));
+    }
+    _savePosition(mediaId, _playback.position.value);
+  }
+
+  void _maybeSavePosition() {
+    final mediaId = _sessionMediaId;
+    if (mediaId == null) return;
+    final now = DateTime.now();
+    final lastSave = _lastPositionSave;
+    if (lastSave == null || now.difference(lastSave) >= _positionSaveInterval) {
+      _lastPositionSave = now;
+      _savePosition(mediaId, _playback.position.value);
+    }
+  }
+
+  void _savePosition(String mediaId, Duration position) {
+    final media = _media;
+    if (media == null) return;
+    unawaited(media.updatePosition(mediaId, position.inMilliseconds));
   }
 
   void _maybeRotateSession() {
